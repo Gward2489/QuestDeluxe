@@ -9,5 +9,8 @@
     "height": 624,
     "icon": "icon/icon.png"
   },
-  "version": ""
+  "version": "",
+  "dependencies": {
+    "jquery": "^3.3.1"
+  }
 }

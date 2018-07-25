@@ -69,6 +69,7 @@
         }
     };
 
+    
     function Window_SavefileStatus() {
         this.initialize.apply(this, arguments);
     }
