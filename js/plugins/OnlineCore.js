@@ -23,18 +23,117 @@ Imported.OnlineCore = true;
     }
 
     
-    
-    
     Game_Network.prototype.initialize = function() {
         this.apiUrl = 'http://localhost:5000/api';
         this.token = '';
         this.userEmail = "";
+        this.userAccountName = "";
+        this.currentMapId = 0; 
+        this.mapConnection = {};
+        this.networkMapEvents = {};
+        this.game_loaded = false;
     };
+
+    Game_Network.prototype.connectMapSocketAfterLogin = function() {
+        let connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5000/gameMapHub")
+        .build();
+        $gameNetwork.mapConnection = connection;
+        (async () => {
+            try {
+                await $gameNetwork.mapConnection.start();
+                let playerData = $gameNetwork.GetPlayerCasterData();
+
+                $gameNetwork.mapConnection.invoke("AddToMapGroup", "mapRoom" + $gameNetwork.currentMapId, JSON.stringify(playerData));
+    
+                
+                $gameNetwork.mapConnection.on("NewPlayerOnMap", function (playerData) {
+                    let data = JSON.parse(playerData);
+                    if (data.x === 0 || data.y === 0) {
+                        data.x = 1,
+                        data.y = 1
+                    };
+                    let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName);
+                    $gameNetwork.networkMapEvents[data.accountUserName] = newNetworkPlayer;
+                    Game_Player.prototype.UpdateNetworkPlayer(data);
+                    let pingData = Game_Network.prototype.GetPlayerCasterData();
+                    $gameNetwork.mapConnection.invoke("BroadcastToMapGroup", "mapRoom" + $gameNetwork.currentMapId, JSON.stringify(pingData));
+                });
+
+                $gameNetwork.mapConnection.on("PlayerMapUpdate", function (playerData) {
+
+                    if (!SceneManager._scene._spriteset || SceneManager._scene instanceof Scene_Battle) {              
+                        return;
+                    } 
+        
+                    let data = JSON.parse(playerData);
+                    
+                    if ($gameNetwork.networkMapEvents[data.accountUserName]) {
+                        Game_Player.prototype.UpdateNetworkPlayer(data);
+                    } else {
+                        let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName);
+                        $gameNetwork.networkMapEvents[data.accountUserName] = newNetworkPlayer;
+                        Game_Player.prototype.UpdateNetworkPlayer(data);
+                    }
+
+                });
+
+                $gameNetwork.mapConnection.on("RemovePlayerFromMap", function (playerData) {
+
+                    let data = JSON.parse(playerData);
+
+                    let targetDataEventIndex = 0; 
+                    for (let i = 0; i < $dataMap.events.length; i++) {
+                        if ($dataMap.events[i] !== null) {
+                            if ($dataMap.events[i].name === data.accountUserName) {
+                                targetDataEventIndex = i;
+                            }
+                        }
+                    }
+                    $dataMap.events.splice(targetDataEventIndex, 1);
+
+                    let targetMapEventIndex = 0;
+                    for (let i = 1; i < $gameMap._events.length; i ++) {
+                        if ($gameMap._events[i]._accountUserName) {
+                            if ($gameMap._events[i]._accountUserName === data.accountUserName) {
+                                targetMapEventIndex = i;
+                            }
+                        }
+                    }
+                    $gameMap._events.splice(targetMapEventIndex, 1);
+
+                    delete $gameNetwork.networkMapEvents[data.accountUserName];
+                    SceneManager._scene._spriteset.clearNetworkPlayer(data.accountUserName);
+
+                });
+
+            }
+            catch (e) {
+                console.error(e.toString());
+            }
+        })();
+    }
     
     Game_Network.prototype.CaptureLoginResponse = function (responseData) {
         $gameNetwork.token = responseData.token;
-        $gameNetwork.userEmail = responseData.user;
+        $gameNetwork.userEmail = responseData.email;
+        $gameNetwork.userAccountName = responseData.user;
     }
+
+    Game_Network.prototype.GetPlayerCasterData = function () {
+
+        let playerData = {
+            accountUserName: $gameNetwork.userAccountName,
+            direction: $gamePlayer._direction,
+            x: $gamePlayer._x,
+            y: $gamePlayer._y,
+            moveSpeed: $gamePlayer._moveSpeed,
+            moveFrequenzy: $gamePlayer._moveFrequency,
+            characterName: $gamePlayer._characterName,
+            characterIndex: $gamePlayer._characterIndex
+        }
+        return playerData;
+    };
         
     Game_Network.prototype.LoadGameFilesFromServer = function(userEmail, callback) {
         $.get($gameNetwork.apiUrl + `/GameData/${userEmail}`, function(response) {
@@ -182,42 +281,3 @@ Imported.OnlineCore = true;
             DataManager.onLoad(window[dataType]) 
         }
     };
-
-    DataManager.loadDataFile = function(name, src) {
-        var xhr = new XMLHttpRequest();
-        var url = 'data/' + src;
-        xhr.open('GET', url);
-        xhr.overrideMimeType('application/json');
-        xhr.onload = function() {
-            if (xhr.status < 400) {
-                window[name] = JSON.parse(xhr.responseText);
-                DataManager.onLoad(window[name]);
-            }
-        };
-        xhr.onerror = this._mapLoader || function() {
-            DataManager._errorUrl = DataManager._errorUrl || url;
-        };
-        window[name] = null;
-        xhr.send();
-    };
-    
-    // TODO: Implement Identity check to load character files that correspond to current user. 
-
-
-    DataManager.loadDatabase = function() {
-    
-        var test = this.isBattleTest() || this.isEventTest();
-        var prefix = test ? 'Test_' : '';
-        for (var i = 0; i < this._databaseFiles.length; i++) {
-            var name = this._databaseFiles[i].name;
-            var src = this._databaseFiles[i].src;
-            this.loadDataFile(name, prefix + src);
-        }
-        if (this.isEventTest()) {
-            this.loadDataFile('$testEvent', prefix + 'Event.json');
-        }
-    }
-
-
-
-

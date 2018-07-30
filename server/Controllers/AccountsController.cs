@@ -72,9 +72,10 @@ namespace server.Controllers
 
             if (result.Succeeded)
             {
-                var appUser = _userManager.Users.SingleOrDefault(u => u.Email == model.email);
+                var appUser = _context.ApplicationUser.SingleOrDefault(u => u.Email == model.email);
                 LoginSuccess loginSuccess = new LoginSuccess() {
-                    user = appUser.Email,
+                    user = appUser.AccountName,
+                    email = appUser.Email,
                     token = Convert.ToString(await GenerateJwtTokenAsync(appUser.Email, appUser))
                 };
             

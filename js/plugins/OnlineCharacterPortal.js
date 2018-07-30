@@ -277,10 +277,12 @@ QuestDeluxePortal.prototype.CharacterSelect = function() {
                 $gameNetwork.PopulateDatabase(d);
                 DataManager.createGameObjects();
                 $gameParty.setupStartingMembers();
+                $gameNetwork.currentMapId = d.$dataSystem.startMapId;
                 $gamePlayer.reserveTransfer($dataSystem.startMapId,
                     $dataSystem.startX, $dataSystem.startY);
                 Graphics.frameCount = 0;
                 SceneManager.goto(Scene_Map);
+                $gameNetwork.connectMapSocketAfterLogin();
             });
             count ++;
         });

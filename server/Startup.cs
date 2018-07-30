@@ -21,6 +21,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using server.CustomTypes;
 using server.DBContext;
+using server.Hubs;
+using Microsoft.AspNetCore.SignalR;
+
 
 namespace server
 {
@@ -90,7 +93,12 @@ namespace server
             services.Configure<FormOptions>(x => x.ValueCountLimit = 666666666);
             services.Configure<FormOptions>(x => x.ValueLengthLimit = 666666666);
 
+            services.AddSignalR();
+
+
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
             
         }
 
@@ -106,6 +114,11 @@ namespace server
                 app.UseHsts();
             }
 
+            app.UseCors("SiteCorsPolicy");
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<GameMapHub>("/gameMapHub");
+            });
             app.UseMvc();
         }
     }
