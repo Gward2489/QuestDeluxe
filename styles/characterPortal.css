@@ -1,0 +1,183 @@
+input {
+    border-radius: 3px;
+    color: lightskyblue;
+    border: 1px solid lightskyblue;
+    padding-left: 4px;
+    box-shadow: 0 0 0 30px black inset;
+}
+
+button {
+    background-color: transparent;
+    border: 1px solid lightskyblue;
+    border-radius: 2px;
+    font-size: .7em;
+    color: #119bef;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+button:hover {
+    background-color: lightskyblue;
+    border: 1px solid lightskyblue;
+    border-radius: 2px;
+    font-size: .7em;
+    color: #119bef;
+    padding-left: 12px;
+    padding-right: 12px;
+    cursor: pointer;
+}
+
+#LoginForm {
+    background-color: rgba(119,136,153,.2);
+    border: 3px solid lightskyblue;
+    height: 200px;
+    border-radius: .66em;
+    margin: auto;
+}
+
+.loginButton {
+    margin-top: 5px;
+}
+
+.toRegisterWrapper {
+    margin-top: 5px;
+}
+
+.LoginWrapper {
+    top: 40px;
+    position: relative;
+    font-family: arial;
+    font-size: .9em;
+    color: lightskyblue;
+}
+
+.welcome-text {
+    margin-left: 9px;
+    margin-right: 9px;
+    margin-bottom: 9px;
+}
+
+
+#RegisterForm {
+    background-color: rgba(119,136,153,.2);
+    border: 3px solid lightskyblue;
+    height: 200px;
+    border-radius: .66em;
+    margin: auto;
+}
+
+.register-text {
+    margin-left: 9px;
+    margin-right: 9px;
+    margin-bottom: 9px;
+}
+
+.registrationWrapper {
+    top: 15px;
+    position: relative;
+    font-family: arial;
+    font-size: .9em;
+    color: lightskyblue;
+}
+
+.registrationWrapper input {
+    margin-bottom: 3px;
+}
+
+#CharacterSelectScreen {
+    background-color: rgba(119,136,153,.2);
+    border: 3px solid lightskyblue;
+    height: 200px;
+    border-radius: .66em;
+    margin: auto;
+}
+
+.charSelectWrapper {
+    top: 9px;
+    position: relative;
+    font-family: arial;
+    font-size: .9em;
+    color: lightskyblue;
+}
+
+.charSelectButtons {
+    margin-bottom: 6px;
+}
+
+.charactersTableWrapper {
+    border: .9px solid;
+    border-radius: 3px;
+    margin-left: 18px;
+    margin-right: 18px;
+    margin-top: 15px;
+    padding-bottom: 6px;
+}
+
+.charactersTable {
+    font-size: .8em;
+}
+
+#NewCharacterScreen {
+    background-color: rgba(119,136,153,.2);
+    border: 3px solid lightskyblue;
+    height: 200px;
+    border-radius: .66em;
+    margin: auto;
+}
+
+.newCharacterWrapper {
+    top: 9px;
+    position: relative;
+    font-family: arial;
+    font-size: .9em;
+    color: lightskyblue;
+}
+
+.infoTextInnerWrapper {
+    margin-bottom: 6px;
+}
+
+.newCharacterWrapper input {
+    margin-bottom: 9px;
+}
+
+.newCharacterWrapper button {
+    margin-bottom: 6px;
+}
+
+.registrationSuccessWrapper {
+    background-color: rgba(119,136,153,.2);
+    border: 3px solid lightskyblue;
+    height: 200px;
+    border-radius: .66em;
+    margin: auto;
+}
+
+.registrationSuccessInnerWrapper {
+    top: 9px;
+    position: relative;
+    font-family: arial;
+    font-size: .9em;
+    color: lightskyblue;
+    margin-top: 30px;
+}
+.registrationSuccessTextWrapper {
+    margin-bottom: 9px;
+}
+
+#loadingScreen {
+    background-color: rgba(119,136,153,.2);
+    border: 3px solid lightskyblue;
+    height: 200px;
+    border-radius: .66em;
+    margin: auto;
+}
+
+.loadingScreenWrapper{
+    top: 9px;
+    position: relative;
+    font-family: arial;
+    font-size: .9em;
+    color: lightskyblue;
+    margin-top: 30px;
+}

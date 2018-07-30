@@ -193,29 +193,29 @@ Imported.OnlineCore = true;
         })
     }
 
-    Game_Network.prototype.ClassSelect = function (savefile, classChoice) {
+    Game_Network.prototype.ClassSelect = function (savefile, classChoice, charName) {
 
         if (classChoice === 'Clansmen') {
             let newActor = [null,
-                {"id":1,"battlerName":"Actor1_1","characterIndex":0,"characterName":"Actor1","classId":1,"equips":[1,1,2,3,0],"faceIndex":0,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":"Todd of Toddington","nickname":"","note":"","profile":""}
+                {"altClassName":`${classChoice}`,"id":1,"battlerName":"Actor1_1","characterIndex":0,"characterName":"Actor1","classId":1,"equips":[1,1,2,3,0],"faceIndex":0,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
                 ];
     
             savefile['$dataActors'] = newActor;
         } else if (classChoice === 'Big Hat') {
             let newActor = [null,
-                {"id":2,"battlerName":"Actor2_5","characterIndex":4,"characterName":"Actor2","classId":3,"equips":[3,0,0,0,0],"faceIndex":4,"faceName":"Actor2","traits":[],"initialLevel":1,"maxLevel":99,"name":"Jeb","nickname":"","note":"","profile":""}
+                {"altClassName":`${classChoice}`,"id":2,"battlerName":"Actor2_5","characterIndex":4,"characterName":"Actor2","classId":3,"equips":[3,0,0,0,0],"faceIndex":4,"faceName":"Actor2","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
             ]
 
             savefile['$dataActors'] = newActor;
         } else if (classChoice === 'Divine') {
             let newActor = [null,
-                {"id":3,"battlerName":"Actor1_7","characterIndex":6,"characterName":"Actor1","classId":2,"equips":[2,0,0,0,0],"faceIndex":6,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":"Jordie the Jord","nickname":"","note":"","profile":""}
+                {"altClassName":`${classChoice}`,"id":4,"battlerName":"Actor2_4","characterIndex":3,"characterName":"Actor3","classId":4,"equips":[4,0,0,0,0],"faceIndex":3,"faceName":"Actor3","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
             ]
-
+            
             savefile['$dataActors'] = newActor;
         } else if (classChoice === 'Mercenary') {
             let newActor = [null,
-                {"id":4,"battlerName":"Actor2_4","characterIndex":3,"characterName":"Actor3","classId":4,"equips":[4,0,0,0,0],"faceIndex":3,"faceName":"Actor3","traits":[],"initialLevel":1,"maxLevel":99,"name":"Barbara the blessed","nickname":"","note":"","profile":""}
+                {"altClassName":`${classChoice}`,"id":3,"battlerName":"Actor1_7","characterIndex":6,"characterName":"Actor1","classId":2,"equips":[2,0,0,0,0],"faceIndex":6,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
             ]
 
             savefile['$dataActors'] = newActor;
@@ -238,7 +238,7 @@ Imported.OnlineCore = true;
         }
     }
 
-    Game_Network.prototype.CreateNewSaveFile = function (ownerEmail, classChoice) {
+    Game_Network.prototype.CreateNewSaveFile = function (ownerEmail, classChoice, callBack, charName) {
 
         let saveFile = {};
         let counter = 0;
@@ -255,13 +255,16 @@ Imported.OnlineCore = true;
                     saveFile[f[0]] = JSON.parse(xhr.responseText);
                     if (counter === cap) {
 
-                        let GameFile = $gameNetwork.ClassSelect(saveFile, classChoice);
+                        let GameFile = $gameNetwork.ClassSelect(saveFile, classChoice, charName);
                         let json = JSON.stringify(GameFile);
                         $.ajax({
                             url: $gameNetwork.apiUrl + `/GameData/SaveNewGame/${ownerEmail}`,
                             type: "POST",
                             data: json,
-                            contentType: 'application/json'
+                            contentType: 'application/json',
+                            success: function () {
+                                callBack();
+                            }
                         })
                         counter++
                     };

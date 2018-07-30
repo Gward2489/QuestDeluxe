@@ -31,10 +31,14 @@ QuestDeluxePortal.prototype.create = function() {
     this.createBackground();
 };
 
+QuestDeluxePortal.prototype.reBindInput = function() {
+    Input.initialize();
+};
+
 QuestDeluxePortal.prototype.start = function () {
     Scene_Base.prototype.start.call(this);
     SceneManager.clearStack();
-    this.playTitleMusic();
+    // this.playTitleMusic();
     this.startFadeIn(this.fadeSpeed(), false);
     this.LoginForm();
 }
@@ -77,11 +81,11 @@ QuestDeluxePortal.prototype.RegistrationSuccess = function() {
     let context = this;
     let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
     $('#ErrorPrinter').html(
-        `<div class="registrationSuccessWrapper" style="width:${screenWidth}px>
+        `<div class="registrationSuccessWrapper" style="width:${screenWidth}px">
             <div class="registrationSuccessInnerWrapper">
                 <div class="registrationSuccessTextWrapper">
                     <div class="registrationSuccessText">
-                        REGISTRATION SUCCESSFUL! LOG IN!
+                        Registration Succesful! 
                     </div>
                 </div>
                 <div class="registrationSuccessButtonWrapper">
@@ -94,7 +98,7 @@ QuestDeluxePortal.prototype.RegistrationSuccess = function() {
         `
     );
     $('.registrationSuccessButton').click(function () {
-        context.LoginForm();
+        QuestDeluxePortal.prototype.LoginForm();
     })
 }
 
@@ -102,8 +106,14 @@ QuestDeluxePortal.prototype.RegistrationForm = function() {
     let context = this;
     let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
     $("#ErrorPrinter").html(
-        `<div id="RegisterForm" class="panel panel-primary" style="width:${screenWidth}px>
-            <div class="registrationWrapper>
+        `<div id="RegisterForm" style="width:${screenWidth}px">
+            <div class="registrationWrapper">
+                <div>
+                    <div class="register-text">
+                        Provide your email address, a desired user name, and a password. 
+                    </div>
+                </div>
+
                 <div class="emailWrapper">
                     <div class="emailInput">
                         <input class="emailText" placeholder="email">
@@ -114,7 +124,7 @@ QuestDeluxePortal.prototype.RegistrationForm = function() {
                         <input class="accountNameText" placeholder="user name">
                     </div>
                 </div>
-                <div class=passwordWrapper">
+                <div class="passwordWrapper">
                     <div class="passwordInput">
                         <input class="passwordText" type="password" placeholder="password">
                     </div>
@@ -157,7 +167,7 @@ QuestDeluxePortal.prototype.RegistrationForm = function() {
     });
 
     $('.toLoginButton').click(function (e) {
-        context.LoginForm();
+        QuestDeluxePortal.prototype.LoginForm();
     });
 }
 
@@ -165,14 +175,19 @@ QuestDeluxePortal.prototype.LoginForm = function() {
     let context = this;
     let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
     $("#ErrorPrinter").html(
-        `<div id="LoginForm" class="panel panel-primary" style="width:${screenWidth}px>
-            <div class="LoginWrapper>
+        `<div id="LoginForm" style="width:${screenWidth}px">
+            <div class="LoginWrapper">
+                <div>
+                    <div class="welcome-text">
+                        Welcome. Log In below, or click the Sign Up button to create a new account. 
+                    </div>
+                </div>
                 <div class="loginEmailWrapper">
                     <div class="loginEmailInput">
                         <input class="loginEmailText" placeholder="email">
                     </div>
                 </div>
-                <div class=loginPasswordWrapper">
+                <div class="loginPasswordWrapper">
                     <div class="loginPasswordInput">
                         <input class="loginPasswordText" placeholder="password" type="password">
                     </div>
@@ -214,7 +229,7 @@ QuestDeluxePortal.prototype.LoginForm = function() {
     });
 
     $('.toRegisterSubmitButton').click(function (e) {
-        context.RegistrationForm();
+        QuestDeluxePortal.prototype.RegistrationForm();
     });
 }
 
@@ -222,58 +237,69 @@ QuestDeluxePortal.prototype.CharacterSelect = function() {
     let context = this;
     let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
     $("#ErrorPrinter").html(
-        `<div id="CharacterSelectScreen" class="panel panel-primary" style="width:${screenWidth}px>
-            <div class="optionsButtonsWrapper">
-                <div class="optionsButtonsRow">
-                    <div class="logoutButtonWrapper">
-                        <button class="logoutButton">
-                            LOG OUT
-                        </button>
-                    </div>
-                    <div class="newCharacterButtonWrapper">
+        `<div id="CharacterSelectScreen" style="width:${screenWidth}px">
+            <div class="charSelectWrapper">
+                <div class="welcome-text">
+                    Select your character, or create a new one by clicking the new character button. 
+                </div>
+                <div class="charSelectButtonsWrapper">
+                    <div class="charSelectButtons">
                         <button class="newCharacterButton">
                             NEW CHARACTER
                         </button>
-                    </div>
-                    <div class="accountOptionsWrapper">
+                        <button class="logoutButton">
+                            LOG OUT
+                        </button>
                         <button class="accountOptionsButton">
                             OPTIONS
                         </button>
                     </div>
                 </div>
-            </div>
-            <div class="charactersTableWrapper">
-                <div class="charactersTableContainer">
-                    <table style="width:100%" class="charactersTable">
-                        <tr>
-                            <th>Level</th> 
-                            <th>Class</th>
-                            <th>Character Name</th>
-                        </tr>
-                        <tr>
-                            <td>17</td>
-                            <td>Mage</td> 
-                            <td>Jordie</td>
-                        </tr>
-                    </table>
-                </div>
+                <div class="charactersTableWrapper">
+                    <div class="charactersTableContainer">
+                        <table style="width:100%" class="charactersTable">
+                            <tr>
+                                <th>Select</th>
+                                <th>Level</th> 
+                                <th>Class</th>
+                                <th>Character Name</th>
+                            </tr>
+                        </table>
+                        <div class="charactersLoading">
+                            <div>
+                                Loading your characters...
+                            </div>
+                            <div style="margin-top:12px;">
+                                <img src="../extra_images/loading.gif" alt="loading-gif" height="50px" width="50px">
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div> 
             </div>
         </div>`
     )
 
+    $('.charactersTable').hide();
+
     let printGames = function (response) {
+        $('.charactersLoading').hide();
+        $('.charactersTable').show();
         let count = 1;
         response.forEach(d => {
+            let charData = d.$dataActors[1];
             $('.charactersTable').append(` 
             <tr>
-                <td><button class=game${count}>go go go</button></td>
-                <td>Mage 22</td> 
-                <td>Jordie hmmmm</td>
+                <td><button class="game${count}">CHOOSE</button></td>
+                <td>${charData.initialLevel}</td> 
+                <td>${charData.altClassName}</td>
+                <td>${charData.name}</td>
             </tr>
             `);
             $(`.game${count}`).click( function () {
 
                 $("#ErrorPrinter").html('')
+                QuestDeluxePortal.prototype.reBindInput();
                 $gameNetwork.PopulateDatabase(d);
                 DataManager.createGameObjects();
                 $gameParty.setupStartingMembers();
@@ -316,82 +342,145 @@ QuestDeluxePortal.prototype.NewCharacter = function() {
     let context = this;
     let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
     $("#ErrorPrinter").html(
-        `<div id="NewCharacterScreen" class="panel panel-primary" style="width:${screenWidth}px>
-            <div class="infoTextWrapper">
-                <div class="infoTextInnerWrapper">
+        `<div id="NewCharacterScreen" class="panel panel-primary" style="width:${screenWidth}px">
+            <div class="newCharacterWrapper">
+                <div class="nameWarning">
                     <div class="infoText">
-                        ENTER A CHARACTER NAME AND SELECT YOUR BASE CLASS
+                        You must enter a name for your character
                     </div>
-                </div>
-            </div>
-
-            <div class="characterNameWrapper">
-                <div class="characterNameInput">
-                    <input class="characterNameInputText">
-                </div>
-            </div>
-
-            <div class="clansmanClassWrapper">
-                <div class="clansmanClassInnerWrapper">
-                    <button class="clansmenButton">
-                        CLANSMEN
+                    <div>
+                    <button class="confirmNameWarning">
+                        OK
                     </button>
+                    </div>   
                 </div>
-            </div>
+                <div class="charSelectMain">
+                    <div class="infoTextWrapper">
+                        <div class="infoTextInnerWrapper">
+                            <div class="infoText">
+                                Enter a character name and select your base class
+                            </div>
+                        </div>
+                    </div>
+                    <div class="characterNameWrapper">
+                        <div class="characterNameInput">
+                            <input class="characterNameInputText" type="text" placeholder="character name">
+                        </div>
+                    </div>
 
-            <div class="bighatClassWrapper">
-                <div class="bighatClassInnerWrapper">
-                    <button class="bighatButton">
-                        BIG HAT
-                    </button>
-                </div>
-            </div>
+                    <div class="clansmanClassWrapper">
+                        <div class="clansmanClassInnerWrapper">
+                            <button class="clansmenButton">
+                                CLANSMEN
+                            </button>
+                        </div>
+                    </div>
 
-            <div class="divineClassWrapper">
-                <div class="divinClassInnerWrapper">
-                    <button class="divineClassButton">
-                        DIVINE
-                    </button>
-                </div>
-            </div>
+                    <div class="bighatClassWrapper">
+                        <div class="bighatClassInnerWrapper">
+                            <button class="bighatButton">
+                                BIG HAT
+                            </button>
+                        </div>
+                    </div>
 
-            <div class="mercenaryClassWrapper">
-                <div class="mercenaryClassInnerWrapper">
-                    <button class="mercenaryClassButton">
-                        MERCENARY
-                    </button>
+                    <div class="divineClassWrapper">
+                        <div class="divinClassInnerWrapper">
+                            <button class="divineClassButton">
+                                DIVINE
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mercenaryClassWrapper">
+                        <div class="mercenaryClassInnerWrapper">
+                            <button class="mercenaryClassButton">
+                                MERCENARY
+                            </button>
+                        </div>
+                    </div>     
                 </div>
             </div>
         </div>`
     )
 
+    $('.nameWarning').hide();
+
     let scrapeCharName = function () {
         return $('.characterNameInputText').val();
     }
 
+    $('.confirmNameWarning').click( function () {
+        $('.nameWarning').hide(); 
+        $('.charSelectMain').show();
+    });
+
+
     $('.clansmenButton').click( function () {
         let charName = scrapeCharName();
+        if (charName === "") {
+            $('.charSelectMain').hide();
+            $('.nameWarning').show();
+            return
+        }
         $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Clansmen')
+        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Clansmen', QuestDeluxePortal.prototype.CharacterSelect, charName)
+        QuestDeluxePortal.prototype.loadingScreen();
     });
 
     $('.bighatButton').click( function () {
         let charName = scrapeCharName();
+        if (charName === "") {
+            $('.charSelectMain').hide();
+            $('.nameWarning').show();
+            return
+        }
         $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Big Hat')
+        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Big Hat', QuestDeluxePortal.prototype.CharacterSelect, charName)
+        QuestDeluxePortal.prototype.loadingScreen();
+
     });
 
     $('.divineClassButton').click( function () {
         let charName = scrapeCharName();
+        if (charName === "") {
+            $('.charSelectMain').hide();
+            $('.nameWarning').show();
+            return
+        }
         $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Divine') 
+        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Divine', QuestDeluxePortal.prototype.CharacterSelect, charName) 
+        QuestDeluxePortal.prototype.loadingScreen();
+
     });
 
     $('.mercenaryClassButton').click( function () {
         let charName = scrapeCharName();
+        if (charName === "") {
+            $('.charSelectMain').hide();
+            $('.nameWarning').show();
+            return
+        }
         $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Mercenary')
+        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Mercenary', QuestDeluxePortal.prototype.CharacterSelect, charName)
+        QuestDeluxePortal.prototype.loadingScreen();
     });
+};
+
+QuestDeluxePortal.prototype.loadingScreen = function () {
+    let context = this;
+    let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
+    $("#ErrorPrinter").html(
+        `<div id="loadingScreen" style="width:${screenWidth}px">
+            <div class="loadingScreenWrapper">
+                <div>
+                    Creating New Game...
+                </div>
+                <div style="margin-top:12px;">
+                    <img src="../extra_images/loading.gif" alt="loading-gif" height="80px" width="80px">
+                </div>
+            </div>
+        </div>`);   
 };
 
 QuestDeluxePortal.prototype.createBackground = function() {
@@ -437,11 +526,6 @@ QuestDeluxePortal.prototype.playTitleMusic = function() {
 };
 
 
-
-
-// ? ~ Maybe make Online portal optional by incorporating the orignal function in an if else ~ ?
-// let Mage_SceneBootStart = Scene_Boot.prototype.start;
-
 	Scene_Boot.prototype.start = function() {
 	    Scene_Base.prototype.start.call(this);
 	    SoundManager.preloadImportantSounds();
@@ -457,5 +541,50 @@ QuestDeluxePortal.prototype.playTitleMusic = function() {
 	        SceneManager.goto(QuestDeluxePortal);
 	    }
 	    this.updateDocumentTitle();
+    };
+    
+
+    //-----------------------------------------------------------------------------
+	//
+	// Overriding 'Input._onKeyDown' to pass 'event' as parameter
+	// to 'Input._shouldPreventDefault'
+	//
+
+	Input._onKeyDown = function(event) {
+	    if (this._shouldPreventDefault(event)) {
+	        event.preventDefault();
+	    }
+	    if (event.keyCode === 144) {    // Numlock
+	        this.clear();
+	    }
+	    var buttonName = this.keyMapper[event.keyCode];
+	    if (buttonName) {
+	        this._currentState[buttonName] = true;
+	    }
 	};
+
+    //-----------------------------------------------------------------------------
+	//
+	// Overriding Input._shouldPreventDefault to allow the use of the 'backspace key'
+	// in input forms.
+	//
+
+	Input._shouldPreventDefault = function(e) {
+	    switch (e.keyCode) {
+		    case 8:     // backspace
+		    	if ($(e.target).is("input, textarea"))
+		    		break;
+		    case 33:    // pageup
+		    case 34:    // pagedown
+		    case 37:    // left arrow
+		    case 38:    // up arrow
+		    case 39:    // right arrow
+		    case 40:    // down arrow
+		        return true;
+	    }
+	    return false;
+	};
+
+
+
 })();
