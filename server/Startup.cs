@@ -118,6 +118,8 @@ namespace server
             app.UseSignalR(routes =>
             {
                 routes.MapHub<GameMapHub>("/gameMapHub");
+                routes.MapHub<BattleManagerHub>("/battleManagerHub");
+                routes.MapHub<OnlinePartyHub>("/onlinePartyHub");
             });
             app.UseMvc();
         }

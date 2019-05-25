@@ -3,8 +3,7 @@
     "target":"es6"
   },
   "files": [
-    "./rmmv.d.ts",
-    "./rmmv-pixi.d.ts"    
+    "./rmmv.d.ts"
   ],
   "include": [
     "./*",

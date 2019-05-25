@@ -11,16 +11,22 @@ Imported.OnlineCore = true;
     
     
     let $gameNetwork = null;
+    let $onlineParty = null;
 
     let MageCore_CreateGameObj = DataManager.createGameObjects;
     DataManager.createGameObjects = function () {
         MageCore_CreateGameObj.call(this);
         $gameNetwork = $gameNetwork || new Game_Network();
+        $onlineParty = $onlineParty || new Online_Party();
     };
 
     function Game_Network() {
         this.initialize.apply(this, arguments);
     }
+
+    // function Online_Party() {
+    //     this.initialize.apply(this, arguments);
+    // }
 
     
     Game_Network.prototype.initialize = function() {
@@ -55,6 +61,8 @@ Imported.OnlineCore = true;
                     };
                     let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName);
                     $gameNetwork.networkMapEvents[data.accountUserName] = newNetworkPlayer;
+                    $onlineParty.members.push(newNetworkPlayer);
+
                     Game_Player.prototype.UpdateNetworkPlayer(data);
                     let pingData = Game_Network.prototype.GetPlayerCasterData();
                     $gameNetwork.mapConnection.invoke("BroadcastToMapGroup", "mapRoom" + $gameNetwork.currentMapId, JSON.stringify(pingData));
@@ -73,6 +81,7 @@ Imported.OnlineCore = true;
                     } else {
                         let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName);
                         $gameNetwork.networkMapEvents[data.accountUserName] = newNetworkPlayer;
+                        $onlineParty.members.push(newNetworkPlayer);
                         Game_Player.prototype.UpdateNetworkPlayer(data);
                     }
 
@@ -284,3 +293,8 @@ Imported.OnlineCore = true;
             DataManager.onLoad(window[dataType]) 
         }
     };
+
+
+
+
+

@@ -83,9 +83,6 @@
         $gameNetwork.game_loaded = true;
     };
 
-
-
-
     Spriteset_Map.prototype.clearNetworkPlayer = function(accountUserName) {
         for (let i = 0; i < this._characterSprites.length; i++) {
             let event = this._characterSprites[i]._character;
@@ -108,7 +105,6 @@
 
         let userAccount = data.accountUserName;
         let netEvents = $gameNetwork.networkMapEvents;
-
 
         netEvents[userAccount].setMoveSpeed(data.moveSpeed);
         netEvents[userAccount].setMoveFrequency(data.moveFrequenzy);
@@ -184,7 +180,6 @@
         SceneManager._scene._spriteset.createNetworkPlayer(newPlayerMapId, playerAccountName);
         return this._events[newPlayerMapId];
     };
-    
     
     // logic to create new player instance for networkMapEvents
     Spriteset_Map.prototype.createNetworkPlayer = function(targetIndex, playerAccountName) {
