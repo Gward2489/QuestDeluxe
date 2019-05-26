@@ -363,6 +363,7 @@ DataManager.loadSavefileInfo = function(savefileId) {
     return (globalInfo && globalInfo[savefileId]) ? globalInfo[savefileId] : null;
 };
 
+
 DataManager.lastAccessedSavefileId = function() {
     return this._lastAccessedId;
 };

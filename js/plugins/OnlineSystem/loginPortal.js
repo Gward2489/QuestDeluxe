@@ -275,9 +275,14 @@ QuestDeluxePortal.prototype.CharacterSelect = function() {
     let printGames = function (response) {
         $('.charactersLoading').hide();
         $('.charactersTable').show();
+        $gameNetwork.loadedGames = [];
         let count = 1;
+        $gameNetwork.loadedGames.push(null);
         response.forEach(d => {
-            let charData = d.$dataActors[1];
+            // let string = LZString.decompressFromBase64(d)
+            let parsedData = JsonEx.parse(d);
+            $gameNetwork.loadedGames.push(parsedData);
+            let charData = parsedData.actors._data[1];
             $('.charactersTable').append(` 
             <tr>
                 <td><button class="game${count}">CHOOSE</button></td>
@@ -286,19 +291,26 @@ QuestDeluxePortal.prototype.CharacterSelect = function() {
                 <td>${charData.name}</td>
             </tr>
             `);
-            $(`.game${count}`).click( function () {
+            $(`.game${count}`).attr("gameIndex", `${count}`).click( function (evt) {
 
                 $("#ErrorPrinter").html('')
                 QuestDeluxePortal.prototype.reBindInput();
-                $gameNetwork.PopulateDatabase(d);
-                DataManager.createGameObjects();
-                $gameParty.setupStartingMembers();
-                $gameNetwork.currentMapId = d.$dataSystem.startMapId;
-                $gamePlayer.reserveTransfer($dataSystem.startMapId,
-                    $dataSystem.startX, $dataSystem.startY);
-                Graphics.frameCount = 0;
-                SceneManager.goto(Scene_Map);
-                $gameNetwork.connectMapSocketAfterLogin();
+                
+                let index = Number($(evt.currentTarget).attr("gameIndex"));
+                let game = $gameNetwork.loadedGames[index];
+                $gameNetwork.LoadSavedGame(game);
+                // $gameNetwork.PopulateDatabase(d);
+                // DataManager.createGameObjects();
+                // $gameParty.setupStartingMembers();
+                // $gameNetwork.currentMapId = d.$dataSystem.startMapId;
+                // $gamePlayer.reserveTransfer($dataSystem.startMapId,
+                //     $dataSystem.startX, $dataSystem.startY);
+                // Graphics.frameCount = 0;
+                // SceneManager.goto(Scene_Map);
+                // $gameNetwork.connectMapSocketAfterLogin();
+
+
+
             });
             count ++;
         });
@@ -412,8 +424,9 @@ QuestDeluxePortal.prototype.NewCharacter = function() {
             $('.nameWarning').show();
             return
         }
-        $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Clansmen', QuestDeluxePortal.prototype.CharacterSelect, charName)
+        // $gameNetwork.CaptureCoreGameMetaData();
+        $gameNetwork.CreateNewGame($gameNetwork.userEmail, 'Clansmen', QuestDeluxePortal.prototype.CharacterSelect, charName);
+        //$gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Clansmen', QuestDeluxePortal.prototype.CharacterSelect, charName)
         QuestDeluxePortal.prototype.loadingScreen();
     });
 
@@ -424,8 +437,9 @@ QuestDeluxePortal.prototype.NewCharacter = function() {
             $('.nameWarning').show();
             return
         }
-        $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Big Hat', QuestDeluxePortal.prototype.CharacterSelect, charName)
+        // $gameNetwork.CaptureCoreGameMetaData();
+        $gameNetwork.CreateNewGame($gameNetwork.userEmail, 'Big Hat', QuestDeluxePortal.prototype.CharacterSelect, charName);
+        //$gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Big Hat', QuestDeluxePortal.prototype.CharacterSelect, charName)
         QuestDeluxePortal.prototype.loadingScreen();
 
     });
@@ -437,8 +451,9 @@ QuestDeluxePortal.prototype.NewCharacter = function() {
             $('.nameWarning').show();
             return
         }
-        $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Divine', QuestDeluxePortal.prototype.CharacterSelect, charName) 
+        // $gameNetwork.CaptureCoreGameMetaData();
+        $gameNetwork.CreateNewGame($gameNetwork.userEmail, 'Divine', QuestDeluxePortal.prototype.CharacterSelect, charName);
+        //$gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Divine', QuestDeluxePortal.prototype.CharacterSelect, charName) 
         QuestDeluxePortal.prototype.loadingScreen();
 
     });
@@ -450,8 +465,9 @@ QuestDeluxePortal.prototype.NewCharacter = function() {
             $('.nameWarning').show();
             return
         }
-        $gameNetwork.CaptureCoreGameMetaData();
-        $gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Mercenary', QuestDeluxePortal.prototype.CharacterSelect, charName)
+        // $gameNetwork.CaptureCoreGameMetaData();
+        $gameNetwork.CreateNewGame($gameNetwork.userEmail, 'Mercenary', QuestDeluxePortal.prototype.CharacterSelect, charName);
+        //$gameNetwork.CreateNewSaveFile($gameNetwork.userEmail, 'Mercenary', QuestDeluxePortal.prototype.CharacterSelect, charName)
         QuestDeluxePortal.prototype.loadingScreen();
     });
 };
@@ -515,22 +531,22 @@ QuestDeluxePortal.prototype.playTitleMusic = function() {
 };
 
 
-	Scene_Boot.prototype.start = function() {
-	    Scene_Base.prototype.start.call(this);
-	    SoundManager.preloadImportantSounds();
-	    if (DataManager.isBattleTest()) {
-	        DataManager.setupBattleTest();
-	        SceneManager.goto(Scene_Battle);
-	    } else if (DataManager.isEventTest()) {
-	        DataManager.setupEventTest();
-	        SceneManager.goto(Scene_Map);
-	    } else {
-	        this.checkPlayerLocation();
-	        DataManager.setupNewGame();
-	        SceneManager.goto(QuestDeluxePortal);
-	    }
-	    this.updateDocumentTitle();
-    };
+Scene_Boot.prototype.start = function() {
+    Scene_Base.prototype.start.call(this);
+    SoundManager.preloadImportantSounds();
+    if (DataManager.isBattleTest()) {
+        DataManager.setupBattleTest();
+        SceneManager.goto(Scene_Battle);
+    } else if (DataManager.isEventTest()) {
+        DataManager.setupEventTest();
+        SceneManager.goto(Scene_Map);
+    } else {
+        this.checkPlayerLocation();
+        DataManager.setupNewGame();
+        SceneManager.goto(QuestDeluxePortal);
+    }
+    this.updateDocumentTitle();
+};
     
 
     //-----------------------------------------------------------------------------

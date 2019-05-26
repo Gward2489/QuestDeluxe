@@ -2,6 +2,7 @@ var Imported = Imported || {};
 Imported.OnlineCore = true;
 
 import {$gameNetwork, $onlineParty} from "./onlineSystem"
+import { Game_Map } from "./onlineMapBroadcaster";
 export {Game_Network};
 
     /*:
@@ -26,6 +27,7 @@ export {Game_Network};
         this.mapConnection = {};
         this.networkMapEvents = {};
         this.game_loaded = false;
+        this.loadedGames = [];
     };
 
     Game_Network.prototype.connectMapSocketAfterLogin = function() {
@@ -134,6 +136,7 @@ export {Game_Network};
         
     Game_Network.prototype.LoadGameFilesFromServer = function(userEmail, callback) {
         $.get($gameNetwork.apiUrl + `/GameData/${userEmail}`, function(response) {
+            console.log(response);
             callback(response);
         }).fail(function() {
             window.alert('Load failed');
@@ -190,7 +193,7 @@ export {Game_Network};
         })
     }
 
-    Game_Network.prototype.ClassSelect = function (savefile, classChoice, charName) {
+    Game_Network.prototype.ClassSelect_old = function (savefile, classChoice, charName) {
 
         if (classChoice === 'Clansmen') {
             let newActor = [null,
@@ -221,6 +224,47 @@ export {Game_Network};
         return savefile;
     }
 
+    Game_Network.prototype.ClassSelect = function (savefile, classChoice, charName) {
+
+        let newActor = [];
+        
+        if (classChoice === 'Clansmen') {
+            newActor = [null,
+                {"altClassName":`${classChoice}`,"id":1,"battlerName":"Actor1_1","characterIndex":0,"characterName":"Actor1","classId":1,"equips":[1,1,2,3,0],"faceIndex":0,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
+            ];
+            
+        } else if (classChoice === 'Big Hat') {
+            newActor = [null,
+                {"altClassName":`${classChoice}`,"id":2,"battlerName":"Actor2_5","characterIndex":4,"characterName":"Actor2","classId":3,"equips":[3,0,0,0,0],"faceIndex":4,"faceName":"Actor2","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
+            ]
+            
+            
+        } else if (classChoice === 'Divine') {
+            newActor = [null,
+                {"altClassName":`${classChoice}`,"id":4,"battlerName":"Actor2_4","characterIndex":3,"characterName":"Actor3","classId":4,"equips":[4,0,0,0,0],"faceIndex":3,"faceName":"Actor3","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
+            ]
+            
+            
+        } else if (classChoice === 'Mercenary') {
+            newActor = [null,
+                {"altClassName":`${classChoice}`,"id":3,"battlerName":"Actor1_7","characterIndex":6,"characterName":"Actor1","classId":2,"equips":[2,0,0,0,0],"faceIndex":6,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
+            ]
+            
+        }
+        
+        $dataActors = newActor;
+        let actorsArray = new Game_Actors();
+        let gameActor = new Game_Actor(1);
+        let initializedActor = Object.assign(gameActor, newActor[1]);
+        newActor[1] = initializedActor;
+        actorsArray._data = newActor;
+        
+        savefile.actors = actorsArray;
+        savefile.dataActors = $dataActors;
+
+        return savefile;
+    }
+
     Game_Network.prototype.CaptureCoreGameMetaData = function () {
         $gameNetwork.dataFiles = [];
         var test = DataManager.isBattleTest() || DataManager.isEventTest();
@@ -240,6 +284,7 @@ export {Game_Network};
         let saveFile = {};
         let counter = 0;
         let cap = $gameNetwork.dataFiles.length;
+
 
         $gameNetwork.dataFiles.forEach(function (f) {
             let xhr = new XMLHttpRequest();
@@ -280,4 +325,56 @@ export {Game_Network};
             window[dataType] = db[dataType];
             DataManager.onLoad(window[dataType]) 
         }
+    };
+
+    Game_Network.prototype.LoadSavedGame = function (contents) {
+
+        DataManager.createGameObjects();
+        DataManager.extractSaveContents(contents);
+        $dataActors = contents.dataActors;
+
+        let actorsArray = new Game_Actors();
+        let gameActor = new Game_Actor(1);
+        actorsArray._data = [null, gameActor];
+        $gameActors = actorsArray;
+        
+        // $gameParty.setupStartingMembers();
+        // $gameParty._actors.push(contents.actors._data[1].id);
+        // $gamePlayer.requestMapReload();
+        
+        console.log(contents.actors)
+        // $gameParty.addActor($gameActors._data[1].id);
+        
+        $gameNetwork.currentMapId = $dataSystem.startMapId;
+        
+        // $gamePlayer.reserveTransfer($dataSystem.startMapId, $dataSystem.startX, $dataSystem.startY);
+        // $gamePlayer.requestMapReload();
+        
+        Graphics.frameCount = 0;
+        
+        SceneManager.goto(Scene_Map);
+
+        $gameNetwork.connectMapSocketAfterLogin();
+
+    }
+
+    Game_Network.prototype.CreateNewGame = function (ownerEmail, classChoice, callback, charName) {
+        let saveContents = DataManager.makeSaveContents();
+        const newgame = $gameNetwork.ClassSelect(saveContents, classChoice, charName);
+        let json = JsonEx.stringify(newgame);
+        // let data = LZString.compressToBase64(json);
+
+        // console.log(data);
+        console.log("yippe");
+
+        $.ajax({
+            url: $gameNetwork.apiUrl + `/GameData/SaveNewGame/${ownerEmail}`,
+            type: "POST",
+            data: json,
+            processData: false,
+            contentType: "application/json",
+            success: function () {
+                callback();
+            }
+        });
     };

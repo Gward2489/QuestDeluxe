@@ -76,9 +76,9 @@ namespace server.Controllers
                     }
                 });
 
-                List<dynamic> parsedFiles = new List<dynamic>();
+                List<string> parsedFiles = new List<string>();
                 userData.ForEach(u => {
-                    var file = JsonConvert.DeserializeObject(u.GameData);
+                    var file = u.GameData;
                     parsedFiles.Add(file);
                 });
 
