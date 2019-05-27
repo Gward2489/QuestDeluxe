@@ -10,7 +10,7 @@
     }
     
     PartyPortalWindow.prototype.initialize = function () {
-
+      
     }
 
     PartyPortalWindow.prototype.makeCommandList = function () {

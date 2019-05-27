@@ -46,27 +46,6 @@ QuestDeluxePortal.prototype.terminate = function() {
     SceneManager.snapForBackground();
 };
 
-QuestDeluxePortal.prototype.createNewSaveFile = function (newCharacter) {
-
-    let contents = {}
-
-    contents.system       = $gameSystem;
-    contents.screen       = $gameScreen;
-    contents.timer        = $gameTimer;
-    contents.switches     = $gameSwitches;
-    contents.variables    = $gameVariables;
-    contents.selfSwitches = $gameSelfSwitches;
-    contents.actors       = newCharacter;
-    contents.party        = $gameParty;
-    contents.map          = $gameMap;
-    contents.player       = $gamePlayer;
-
-    let jsonData = JSON.stringify(contents);
-
-    return jsonData;
-
-};
-
 QuestDeluxePortal.prototype.RegistrationSuccess = function() {
     let context = this;
     let screenWidth = (Graphics.boxWidth - (Graphics.boxWidth / 3));
@@ -321,22 +300,6 @@ QuestDeluxePortal.prototype.CharacterSelect = function() {
     $('.newCharacterButton').click( function () {
         QuestDeluxePortal.prototype.NewCharacter();
     });
-}
-
-
-QuestDeluxePortal.prototype.runLoadedFile = function (contents) {
-    
-    Object.assign($gameSystem, contents.system);
-    Object.assign($gameScreen, contents.screen);
-    Object.assign($gameTimer, contents.timer);
-    Object.assign($gameSwitches, contents.switches);
-    Object.assign($gameVariables, contents.variables);
-    Object.assign($gameSelfSwitches, contents.selfSwitches);
-    Object.assign($gameActors, contents.actors);
-    Object.assign($gameParty, contents.party);
-    Object.assign($gameMap, contents.map);
-    Object.assign($gamePlayer, contents.player);
-
 }
 
 QuestDeluxePortal.prototype.NewCharacter = function() {

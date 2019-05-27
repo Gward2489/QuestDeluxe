@@ -143,24 +143,6 @@ export {Game_Network};
         });
     };
 
-    Game_Network.prototype.SaveGameToServer = function(GameFile) {
-        $.ajax({
-            url: $gameNetwork.apiUrl + `/GameData/SaveGame`,
-            type: "PUT",
-            data: GameFile,
-            contentType: "application/json"
-        })
-    }
-
-    Game_Network.prototype.SaveNewGameToServer = function(GameFile, ownerEmail) {
-        $.ajax({
-            url: $gameNetwork.apiUrl + `/GameData/SaveNewGame/${ownerEmail}`,
-            type: "POST",
-            data: GameFile,
-            contentType: "application/json"
-        })
-    }
-
     Game_Network.prototype.CreateNewUser = function(userData, callback) {
         $.ajax({
             url: $gameNetwork.apiUrl + `/Accounts/register`,
@@ -191,37 +173,6 @@ export {Game_Network};
                 console.log(r);
             }
         })
-    }
-
-    Game_Network.prototype.ClassSelect_old = function (savefile, classChoice, charName) {
-
-        if (classChoice === 'Clansmen') {
-            let newActor = [null,
-                {"altClassName":`${classChoice}`,"id":1,"battlerName":"Actor1_1","characterIndex":0,"characterName":"Actor1","classId":1,"equips":[1,1,2,3,0],"faceIndex":0,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
-                ];
-    
-            savefile['$dataActors'] = newActor;
-        } else if (classChoice === 'Big Hat') {
-            let newActor = [null,
-                {"altClassName":`${classChoice}`,"id":2,"battlerName":"Actor2_5","characterIndex":4,"characterName":"Actor2","classId":3,"equips":[3,0,0,0,0],"faceIndex":4,"faceName":"Actor2","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
-            ]
-
-            savefile['$dataActors'] = newActor;
-        } else if (classChoice === 'Divine') {
-            let newActor = [null,
-                {"altClassName":`${classChoice}`,"id":4,"battlerName":"Actor2_4","characterIndex":3,"characterName":"Actor3","classId":4,"equips":[4,0,0,0,0],"faceIndex":3,"faceName":"Actor3","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
-            ]
-            
-            savefile['$dataActors'] = newActor;
-        } else if (classChoice === 'Mercenary') {
-            let newActor = [null,
-                {"altClassName":`${classChoice}`,"id":3,"battlerName":"Actor1_7","characterIndex":6,"characterName":"Actor1","classId":2,"equips":[2,0,0,0,0],"faceIndex":6,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":`${charName}`,"nickname":"","note":"","profile":""}
-            ]
-
-            savefile['$dataActors'] = newActor;
-        }
-
-        return savefile;
     }
 
     Game_Network.prototype.ClassSelect = function (savefile, classChoice, charName) {
@@ -265,68 +216,6 @@ export {Game_Network};
         return savefile;
     }
 
-    Game_Network.prototype.CaptureCoreGameMetaData = function () {
-        $gameNetwork.dataFiles = [];
-        var test = DataManager.isBattleTest() || DataManager.isEventTest();
-        var prefix = test ? 'Test_' : '';
-        for (var i = 0; i < DataManager._databaseFiles.length; i++) {
-            var name = DataManager._databaseFiles[i].name;
-            var src = DataManager._databaseFiles[i].src;
-            $gameNetwork.dataFiles.push([name, prefix + src]);
-        }
-        if (DataManager.isEventTest()) {
-            $gameNetwork.dataFiles.push(['$testEvent', prefix + 'Event.json']);
-        }
-    }
-
-    Game_Network.prototype.CreateNewSaveFile = function (ownerEmail, classChoice, callBack, charName) {
-
-        let saveFile = {};
-        let counter = 0;
-        let cap = $gameNetwork.dataFiles.length;
-
-
-        $gameNetwork.dataFiles.forEach(function (f) {
-            let xhr = new XMLHttpRequest();
-            let url = 'data/' + f[1];
-            xhr.open('GET', url);
-            xhr.overrideMimeType('application/json');
-            xhr.onload = function() {
-                if (xhr.status < 400) {
-                    counter ++ ;
-                    saveFile[f[0]] = JSON.parse(xhr.responseText);
-                    if (counter === cap) {
-
-                        let GameFile = $gameNetwork.ClassSelect(saveFile, classChoice, charName);
-                        let json = JSON.stringify(GameFile);
-                        $.ajax({
-                            url: $gameNetwork.apiUrl + `/GameData/SaveNewGame/${ownerEmail}`,
-                            type: "POST",
-                            data: json,
-                            contentType: 'application/json',
-                            success: function () {
-                                callBack();
-                            }
-                        })
-                        counter++
-                    };
-                }
-            };
-            xhr.onerror = DataManager._mapLoader || function() {
-                DataManager._errorUrl = DataManager._errorUrl || url;
-            };
-            xhr.send();
-        });
-        
-    }
-
-    Game_Network.prototype.PopulateDatabase = function (db) {
-        for (let dataType in db) {
-            window[dataType] = db[dataType];
-            DataManager.onLoad(window[dataType]) 
-        }
-    };
-
     Game_Network.prototype.LoadSavedGame = function (contents) {
 
         DataManager.createGameObjects();
@@ -337,19 +226,9 @@ export {Game_Network};
         let gameActor = new Game_Actor(1);
         actorsArray._data = [null, gameActor];
         $gameActors = actorsArray;
-        
-        // $gameParty.setupStartingMembers();
-        // $gameParty._actors.push(contents.actors._data[1].id);
-        // $gamePlayer.requestMapReload();
-        
-        console.log(contents.actors)
-        // $gameParty.addActor($gameActors._data[1].id);
-        
+                
         $gameNetwork.currentMapId = $dataSystem.startMapId;
-        
-        // $gamePlayer.reserveTransfer($dataSystem.startMapId, $dataSystem.startX, $dataSystem.startY);
-        // $gamePlayer.requestMapReload();
-        
+                
         Graphics.frameCount = 0;
         
         SceneManager.goto(Scene_Map);

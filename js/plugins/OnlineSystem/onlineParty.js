@@ -1,4 +1,4 @@
-export {Online_Party};
+export {Online_Party, Online_Party_Window};
 import {$onlineParty, $gameNetwork} from "./onlineSystem";
 import {PartyPortalWindow} from "./partyPortal";
 
@@ -25,20 +25,21 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost) {
     $onlineParty.partyConnection = connection;
     (async () => {
         try {
-            $onlineParty.partyConnection.start();
+            await $onlineParty.partyConnection.start();
 
             if (asHost) {
                 let ping = "hello";
-                $onlineParty.partyConnection.invoke("AddToPartyAsHost", ping);
                 $onlineParty.partyConnection.on("NewPartyWithHost", function (pong) {
-                    if (pong == "hello") {
-                        $onlineParty.isHost = true;
-                    }
+                    $onlineParty.isHost = true;
+                    $gameMessage.add("Your Party Was Created !!");
+                    SceneManager._scene.addChild(new Online_Party_Window);
                 })
+                $onlineParty.partyConnection.invoke("AddToPartyAsHost", `party:${$gameNetwork.userAccountName}`, ping);
             }
 
         } catch (e) {
             console.error(e.toString());
+            $gameMessages.add("Your Party failed to create ")
         };
 
     })();
@@ -68,17 +69,30 @@ Online_Party.prototype.populatePlayerOptions = function () {
 Online_Party.prototype.addPlayerToParty = function (evt) {
     console.log('score');
     let currentExtent = this.currentPartyPortal.currentExt();
-    
 };
 
 Online_Party.prototype.newPartyAsHost = function () {
+    let onlineGroup = {
+        host: $gameNetwork.userAccountName,
+        players: [$gameNetwork.userAccountName]
+    };
 
+    $onlineParty.partiesSeeking.push(onlineGroup);
+    $onlineParty.makeNewPartyConnection(true);
 };
 
-Online_Party.prototype.joinParty = function () {
+function Online_Party_Window() {
+    this.initialize.apply(this, arguments);
+}
 
-};
+Online_Party_Window.prototype = Object.create(Window_Base.prototype);
+Online_Party_Window.prototype.constructor = Online_Party_Window;
 
-Online_Party.prototype.createNewOnlinePartyMember = function () {
+Online_Party_Window.prototype.initialize = function() {
+    Window_Base.prototype.initialize.call(this, 0, 0, 200, 100);
 
-};
+    let partyString = "";
+
+    this.drawTextEx(`${$gameNetwork.userAccountName}`, 2, 2)
+}
+
