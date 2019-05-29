@@ -8,6 +8,7 @@ namespace server.DBContext
     {
         public virtual DbSet<GameFile> GameFile { get; set; }
         public virtual DbSet<ApplicationUser> ApplicationUser { get; set; }
+        public virtual DbSet<OnlineParty> OnlineParty { get; set; }
 
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options)

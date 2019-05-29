@@ -1,5 +1,6 @@
     export {PartyPortalWindow};
     import {$onlineParty, $gameNetwork} from "./onlineSystem";
+import OnlineParty from "./onlinePartyClass";
 
     PartyPortalWindow.prototype = Object.create(Window_Command.prototype);
     PartyPortalWindow.prototype.constructor = PartyPortalWindow;
@@ -10,7 +11,7 @@
     }
     
     PartyPortalWindow.prototype.initialize = function () {
-      
+        _openParties = [];
     }
 
     PartyPortalWindow.prototype.makeCommandList = function () {
@@ -37,7 +38,30 @@
     PartyPortalWindow.prototype.makeCharacterCommands = function () {
         let context = this;
         $onlineParty.playerOptions.forEach(p => {
-            context.addCommand(`${p._accountUserName}`, 'addPlayerToParty', true, `${p._accountUserName}`)
+            context.addCommand(`${p._accountUserName}`, 'addPlayerToParty', true, `${p._accountUserName}`);
         });
+    };
+
+    PartyPortalWindow.prototype.makePartyCommands = function () {
+        let context = this;
+        context._openParties.forEach(party => {
+            context.addCommand(`${party.partyName}`, 'joinParty', true, `${party.partyName}`);
+        })
+    };
+
+    PartyPortalWindow.prototype.GetOpenParties = function (callback) {
+        let context = this;
+        $.ajax({
+            url: $gameNetwork.apiUrl + `/parties`,
+            type: "Get",
+            contentType: "application/json",
+            success: function (r) {
+                context._openParties = r.data;
+                callback();
+            },
+            error: function (r) {
+                console.log(r);
+            }
+        })
     };
 

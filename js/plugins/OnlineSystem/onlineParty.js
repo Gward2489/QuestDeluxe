@@ -13,7 +13,7 @@ Online_Party.prototype.initialize = function () {
     this.partiesSeeking = [];
     this.playerOptions = [];
     this.partyOptions = [];
-    this.currentPartyPortal = {}; 
+    this.currentPartyPortal = {};
 };
 
 Online_Party.prototype.makeNewPartyConnection = function (asHost) {

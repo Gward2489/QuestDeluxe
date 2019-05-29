@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server.DBContext;
 
 namespace server.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190529030823_PartyModel")]
+    partial class PartyModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,31 +204,6 @@ namespace server.Migrations
                     b.ToTable("GameFile");
                 });
 
-            modelBuilder.Entity("server.Models.OnlineParty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("HostId");
-
-                    b.Property<bool>("IsFull");
-
-                    b.Property<string>("SeatOne");
-
-                    b.Property<string>("SeatThree");
-
-                    b.Property<string>("SeatTwo");
-
-                    b.Property<string>("partyName");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HostId");
-
-                    b.ToTable("OnlineParty");
-                });
-
             modelBuilder.Entity("server.Models.ApplicationUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -288,13 +265,6 @@ namespace server.Migrations
                     b.HasOne("server.Models.ApplicationUser", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId");
-                });
-
-            modelBuilder.Entity("server.Models.OnlineParty", b =>
-                {
-                    b.HasOne("server.Models.ApplicationUser", "Host")
-                        .WithMany()
-                        .HasForeignKey("HostId");
                 });
 #pragma warning restore 612, 618
         }
