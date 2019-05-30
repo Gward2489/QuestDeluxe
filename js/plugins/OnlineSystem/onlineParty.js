@@ -1,6 +1,7 @@
 export {Online_Party, Online_Party_Window};
 import {$onlineParty, $gameNetwork} from "./onlineSystem";
 import {PartyPortalWindow} from "./partyPortal";
+import axios from "axios";
 
 function Online_Party() {
     this.initialize.apply(this, arguments);
@@ -46,14 +47,22 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost) {
 };
 
 Online_Party.prototype.makeOnlinePartyPortal = function () {
-    $onlineParty.populatePlayerOptions();
-    let partyPortal = new PartyPortalWindow(300, 300);
-    $onlineParty.currentPartyPortal = partyPortal;
-    $onlineParty.currentPartyPortal.clearCommandList();
-    $onlineParty.currentPartyPortal.makeCommandList();
-    $onlineParty.currentPartyPortal.setHandler('addPlayerToParty', this.addPlayerToParty.bind(this));    
-    SceneManager._scene.addChild(partyPortal);
+    // $onlineParty.populatePlayerOptions();
+
+    axios.get($gameNetwork.apiUrl + '/parties', { contentType: "application/json"})
+    .then(r => {
+        $onlineParty.partyOptions = r.data;
+        let partyPortal = new PartyPortalWindow(300, 300);
+        $onlineParty.currentPartyPortal = partyPortal;
+        $onlineParty.currentPartyPortal.setHandler('joinParty', this.addPlayerToParty.bind(this)); 
+        SceneManager._scene.addChild(partyPortal);
+    });
+
+    
 };
+
+
+
 
 Online_Party.prototype.populatePlayerOptions = function () {
     let context = this;

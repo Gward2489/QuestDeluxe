@@ -1,6 +1,7 @@
-    export {PartyPortalWindow};
-    import {$onlineParty, $gameNetwork} from "./onlineSystem";
+export {PartyPortalWindow};
+import {$onlineParty, $gameNetwork} from "./onlineSystem";
 import OnlineParty from "./onlinePartyClass";
+import Axios from "axios";
 
     PartyPortalWindow.prototype = Object.create(Window_Command.prototype);
     PartyPortalWindow.prototype.constructor = PartyPortalWindow;
@@ -11,11 +12,11 @@ import OnlineParty from "./onlinePartyClass";
     }
     
     PartyPortalWindow.prototype.initialize = function () {
-        _openParties = [];
+        this._openParties = [];
     }
 
     PartyPortalWindow.prototype.makeCommandList = function () {
-        this.makeCharacterCommands();
+        this.makePartyCommands();
     };
 
     PartyPortalWindow.prototype.populatePlayerOptions = function () {
@@ -43,25 +44,17 @@ import OnlineParty from "./onlinePartyClass";
     };
 
     PartyPortalWindow.prototype.makePartyCommands = function () {
-        let context = this;
-        context._openParties.forEach(party => {
-            context.addCommand(`${party.partyName}`, 'joinParty', true, `${party.partyName}`);
+        $onlineParty.partyOptions.forEach(party => {
+            this.addCommand(`${party.partyName}`, 'joinParty', true, `${party.partyName}`);
         })
     };
 
-    PartyPortalWindow.prototype.GetOpenParties = function (callback) {
-        let context = this;
-        $.ajax({
-            url: $gameNetwork.apiUrl + `/parties`,
-            type: "Get",
-            contentType: "application/json",
-            success: function (r) {
-                context._openParties = r.data;
-                callback();
-            },
-            error: function (r) {
-                console.log(r);
-            }
-        })
-    };
+    PartyPortalWindow.prototype.buildWindow = function () {
+            this.clearCommandList();
+            this.makePartyCommands();
+            this.setHandler('addPlayerToParty', $onlineParty.currentPartyPortal.addPlayerToParty.bind(this));   
+    }
+ 
+
+
 

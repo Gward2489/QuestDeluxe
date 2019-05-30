@@ -23,7 +23,7 @@ namespace server.CustomTypes
             {
                 ApplicationUser host = await _context.ApplicationUser.FirstOrDefaultAsync(user => user.AccountName == accountName);
                 OnlineParty newParty = new OnlineParty();
-                newParty.partyName = host.AccountName + "'s Party";
+                newParty.PartyName = host.AccountName + "'s Party";
                 newParty.Host = host;
                 newParty.IsFull = false;
 

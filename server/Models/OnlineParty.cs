@@ -7,7 +7,7 @@ namespace server.Models
         [Key]
         public int Id { get; set; }
         public ApplicationUser Host { get; set; }
-        public string partyName { get; set; }
+        public string PartyName { get; set; }
         public string SeatOne { get; set; }
         public string SeatTwo { get; set; }
         public string SeatThree { get; set; }

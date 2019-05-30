@@ -12,7 +12,7 @@ namespace server.Hubs
 
         PartyHandler _partyHandler;
 
-        OnlinePartyHub(DatabaseContext context)
+        public OnlinePartyHub(DatabaseContext context)
         {
             _partyHandler = new PartyHandler(context);
         }
