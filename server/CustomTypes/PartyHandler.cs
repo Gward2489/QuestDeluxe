@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using server.DBContext;
 using server.Models;
 using System;
@@ -17,7 +18,7 @@ namespace server.CustomTypes
         }
 
 
-        public async Task<bool> CreateNewPartyAsync(string accountName)
+        public async Task<string> CreateNewPartyAsync(string accountName)
         {
             try 
             {
@@ -29,17 +30,18 @@ namespace server.CustomTypes
 
                 await _context.OnlineParty.AddAsync(newParty);
                 await _context.SaveChangesAsync();
-                return true;
+                string partyString = JsonConvert.SerializeObject(newParty);
+                return partyString;
 
             } 
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return "false";
             };
         }
 
-        public async Task<bool> JoinPartyAsync(string accountName, string partyHostName)
+        public async Task<string> JoinPartyAsync(string accountName, string partyHostName)
         {
             try
             {
@@ -48,7 +50,7 @@ namespace server.CustomTypes
 
                 if (party == null)
                 {
-                    return false;
+                    return "false";
                 }
 
                 bool foundSlot = false;
@@ -66,14 +68,22 @@ namespace server.CustomTypes
                     };
                 };
 
-                return foundSlot ? true : false;
+                // return foundSlot ? true : false;
+
+                if (foundSlot) {
+                    await _context.SaveChangesAsync();
+                    string onlinePartyString = JsonConvert.SerializeObject(party);
+                    return onlinePartyString;
+                } else {
+                    return "false";
+                };
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
-            }
+                return "false";
+            };
         }
 
         public async Task<bool> DeletePartyAsync(string partyHostName)

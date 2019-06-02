@@ -21,24 +21,27 @@ namespace server.Hubs
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, partyName);
 
-            if (!await _partyHandler.JoinPartyAsync(partyName.Split(':')[1], playerData))
-            {
+            string partyResults = await _partyHandler.JoinPartyAsync(partyName.Split(':')[1], playerData);
+
+            if (partyResults == "false") {
                 throw new HubException("Failed to Join Party");
             };
 
-            await Clients.OthersInGroup(partyName).SendAsync("NewPlayerInParty", playerData);
+            await Clients.OthersInGroup(partyName).SendAsync("NewPlayerInParty", partyResults);
         }
 
         public async Task AddToPartyAsHost(string partyName, string playerData)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, partyName);
 
-            if (!await _partyHandler.CreateNewPartyAsync(partyName.Split(':')[1]))
+            string partyResults = await _partyHandler.CreateNewPartyAsync(partyName.Split(':')[1]);
+
+            if (partyResults == "false") 
             {
                 throw new HubException("Failed to Create New Party");
-            };
+            }
 
-            await Clients.Caller.SendAsync("NewPartyWithHost", playerData);
+            await Clients.Caller.SendAsync("NewPartyWithHost", partyResults);
         }
 
         public async Task RemoveFromParty(string partyName, string playerData)

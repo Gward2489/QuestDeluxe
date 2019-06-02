@@ -14,10 +14,11 @@ Online_Party.prototype.initialize = function () {
     this.partiesSeeking = [];
     this.playerOptions = [];
     this.partyOptions = [];
+    this.currentOnlinePArty = {};
     this.currentPartyPortal = {};
 };
 
-Online_Party.prototype.makeNewPartyConnection = function (asHost) {
+Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
 
     let connection = new signalR.HubConnectionBuilder()
     .withUrl("http://localhost:5000/onlinePartyHub")
@@ -30,12 +31,18 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost) {
 
             if (asHost) {
                 let ping = "hello";
-                $onlineParty.partyConnection.on("NewPartyWithHost", function (pong) {
+                $onlineParty.partyConnection.on("NewPartyWithHost", function (partyString) {
                     $onlineParty.isHost = true;
                     $gameMessage.add("Your Party Was Created !!");
                     SceneManager._scene.addChild(new Online_Party_Window);
-                })
+                    let party = $onlineParty.createNewOnlineParty(partyString);
+                    console.log(party);
+                });
+
                 $onlineParty.partyConnection.invoke("AddToPartyAsHost", `party:${$gameNetwork.userAccountName}`, ping);
+            } else {
+                $onlineParty.partyConnection.invoke("AddToParty", `party:${partyHost}`, )
+
             }
 
         } catch (e) {
@@ -45,6 +52,12 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost) {
 
     })();
 };
+
+Online_Party.prototype.createNewOnlineParty = function (partyString) {
+    let partyObj = JSON.parse(partyString);
+    return partyObj;
+};
+
 
 Online_Party.prototype.makeOnlinePartyPortal = function () {
     // $onlineParty.populatePlayerOptions();
@@ -57,11 +70,8 @@ Online_Party.prototype.makeOnlinePartyPortal = function () {
         $onlineParty.currentPartyPortal.setHandler('joinParty', this.addPlayerToParty.bind(this)); 
         SceneManager._scene.addChild(partyPortal);
     });
-
     
 };
-
-
 
 
 Online_Party.prototype.populatePlayerOptions = function () {
@@ -78,6 +88,7 @@ Online_Party.prototype.populatePlayerOptions = function () {
 Online_Party.prototype.addPlayerToParty = function (evt) {
     console.log('score');
     let currentExtent = this.currentPartyPortal.currentExt();
+    $onlineParty.partyConnection.invoke("AddToParty", `party:${currentExtent}`, `${$gameNetwork.userAccountName}`);
 };
 
 Online_Party.prototype.newPartyAsHost = function () {
@@ -88,6 +99,13 @@ Online_Party.prototype.newPartyAsHost = function () {
 
     $onlineParty.partiesSeeking.push(onlineGroup);
     $onlineParty.makeNewPartyConnection(true);
+};
+
+Online_Party.prototype.newPlayerInParty = function (newMemberName) {
+
+
+
+
 };
 
 function Online_Party_Window() {
