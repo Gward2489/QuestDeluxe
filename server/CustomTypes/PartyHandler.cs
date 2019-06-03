@@ -45,7 +45,7 @@ namespace server.CustomTypes
         {
             try
             {
-                ApplicationUser host = await _context.ApplicationUser.FirstOrDefaultAsync(user => user.AccountName == accountName);
+                ApplicationUser host = await _context.ApplicationUser.FirstOrDefaultAsync(user => user.AccountName == partyHostName);
                 OnlineParty party = await _context.OnlineParty.FirstOrDefaultAsync(onlineParty => onlineParty.Host.AccountName == host.AccountName);
 
                 if (party == null)

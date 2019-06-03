@@ -17,17 +17,17 @@ namespace server.Hubs
             _partyHandler = new PartyHandler(context);
         }
         
-        public async Task AddToParty(string partyName, string playerData)
+        public async Task AddToParty(string playerData, string hostName)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, partyName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"party:{hostName}");
 
-            string partyResults = await _partyHandler.JoinPartyAsync(partyName.Split(':')[1], playerData);
+            string partyResults = await _partyHandler.JoinPartyAsync(playerData, hostName);
 
             if (partyResults == "false") {
                 throw new HubException("Failed to Join Party");
             };
 
-            await Clients.OthersInGroup(partyName).SendAsync("NewPlayerInParty", partyResults);
+            await Clients.Group($"party:{hostName}").SendAsync("NewPlayerInParty", partyResults);
         }
 
         public async Task AddToPartyAsHost(string partyName, string playerData)

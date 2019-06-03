@@ -14,7 +14,7 @@ Online_Party.prototype.initialize = function () {
     this.partiesSeeking = [];
     this.playerOptions = [];
     this.partyOptions = [];
-    this.currentOnlinePArty = {};
+    this.currentOnlineParty = {};
     this.currentPartyPortal = {};
 };
 
@@ -30,20 +30,34 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
             await $onlineParty.partyConnection.start();
 
             if (asHost) {
+                
                 let ping = "hello";
                 $onlineParty.partyConnection.on("NewPartyWithHost", function (partyString) {
                     $onlineParty.isHost = true;
                     $gameMessage.add("Your Party Was Created !!");
                     SceneManager._scene.addChild(new Online_Party_Window);
                     let party = $onlineParty.createNewOnlineParty(partyString);
+                    $onlineParty.currentOnlineParty = party
+                    console.log(party);
+                });
+
+                $onlineParty.partyConnection.on("NewPlayerInParty", function (partyString) {
+                    $onlineParty.isHost = false;
+                    let party = $onlineParty.createNewOnlineParty(partyString);
+                    $onlineParty.currentOnlineParty = party;
                     console.log(party);
                 });
 
                 $onlineParty.partyConnection.invoke("AddToPartyAsHost", `party:${$gameNetwork.userAccountName}`, ping);
             } else {
-                $onlineParty.partyConnection.invoke("AddToParty", `party:${partyHost}`, )
-
-            }
+                $onlineParty.partyConnection.on("NewPlayerInParty", function (partyString) {
+                    $onlineParty.isHost = false;
+                    let party = $onlineParty.createNewOnlineParty(partyString);
+                    $onlineParty.currentOnlineParty = party;
+                    console.log(party);
+                });
+                $onlineParty.partyConnection.invoke("AddToParty", $gameNetwork.userAccountName, partyHost);
+            };
 
         } catch (e) {
             console.error(e.toString());
@@ -88,7 +102,7 @@ Online_Party.prototype.populatePlayerOptions = function () {
 Online_Party.prototype.addPlayerToParty = function (evt) {
     console.log('score');
     let currentExtent = this.currentPartyPortal.currentExt();
-    $onlineParty.partyConnection.invoke("AddToParty", `party:${currentExtent}`, `${$gameNetwork.userAccountName}`);
+    $onlineParty.makeNewPartyConnection(false, currentExtent);
 };
 
 Online_Party.prototype.newPartyAsHost = function () {

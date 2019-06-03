@@ -45,7 +45,7 @@ import Axios from "axios";
 
     PartyPortalWindow.prototype.makePartyCommands = function () {
         $onlineParty.partyOptions.forEach(party => {
-            this.addCommand(`${party.partyName}`, 'joinParty', true, `${party.partyName}`);
+            this.addCommand(party.partyName, 'joinParty', true, party.partyName.split("'")[0]);
         })
     };
 
