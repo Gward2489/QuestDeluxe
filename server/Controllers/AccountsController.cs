@@ -72,7 +72,7 @@ namespace server.Controllers
 
             if (result.Succeeded)
             {
-                var appUser = _context.ApplicationUser.SingleOrDefault(u => u.Email == model.email);
+                ApplicationUser appUser = _context.ApplicationUser.SingleOrDefault(u => u.Email == model.email);
                 LoginSuccess loginSuccess = new LoginSuccess() {
                     user = appUser.AccountName,
                     email = appUser.Email,
@@ -85,13 +85,14 @@ namespace server.Controllers
             return BadRequest(result);
         }
 
-        private async Task<object> GenerateJwtTokenAsync(string email, IdentityUser user)
+        private async Task<object> GenerateJwtTokenAsync(string email, ApplicationUser user)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email)
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("Name", user.AccountName)
             };
 
             var roles = await _userManager.GetRolesAsync(user);

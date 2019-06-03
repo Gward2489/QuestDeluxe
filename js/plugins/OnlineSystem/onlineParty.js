@@ -21,7 +21,11 @@ Online_Party.prototype.initialize = function () {
 Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
 
     let connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:5000/onlinePartyHub")
+    .withUrl("http://localhost:5000/onlinePartyHub", {
+        accessTokenFactory: () => {
+            return $gameNetwork.token;
+        }
+    })
     .build();
 
     $onlineParty.partyConnection = connection;
@@ -30,7 +34,7 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
             await $onlineParty.partyConnection.start();
 
             if (asHost) {
-                
+
                 let ping = "hello";
                 $onlineParty.partyConnection.on("NewPartyWithHost", function (partyString) {
                     $onlineParty.isHost = true;

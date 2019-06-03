@@ -23,7 +23,7 @@ using server.CustomTypes;
 using server.DBContext;
 using server.Hubs;
 using Microsoft.AspNetCore.SignalR;
-
+using server.Models;
 
 namespace server
 {
@@ -52,6 +52,8 @@ namespace server
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddScoped<UserManager<IdentityUser>>();
                 
             var corsBuilder = new CorsPolicyBuilder();
             corsBuilder.AllowAnyHeader();
@@ -70,7 +72,6 @@ namespace server
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
             })
@@ -81,12 +82,42 @@ namespace server
 
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateActor = false,
                     ValidIssuer = Configuration["JwtIssuer"],
                     ValidAudience = Configuration["JwtIssuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
                     ClockSkew = TimeSpan.Zero // remove delay of token when expire
 
                 };
+
+
+
+                cfg.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context => 
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/gameMapHub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
+
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/onlinePartyHub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
+                        
+                        return Task.CompletedTask;
+                        }
+                };
+
             });
 
             services.Configure<FormOptions>(x => x.KeyLengthLimit = 666666666);
@@ -94,9 +125,7 @@ namespace server
             services.Configure<FormOptions>(x => x.ValueLengthLimit = 666666666);
 
             services.AddSignalR();
-
-
-
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             
@@ -114,6 +143,7 @@ namespace server
                 app.UseHsts();
             }
 
+            app.UseAuthentication();
             app.UseCors("SiteCorsPolicy");
             app.UseSignalR(routes =>
             {

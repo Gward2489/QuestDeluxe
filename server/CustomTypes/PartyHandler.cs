@@ -30,6 +30,8 @@ namespace server.CustomTypes
 
                 await _context.OnlineParty.AddAsync(newParty);
                 await _context.SaveChangesAsync();
+                host.currentPartyId = newParty.Id;
+                await _context.SaveChangesAsync();
                 string partyString = JsonConvert.SerializeObject(newParty);
                 return partyString;
 
@@ -46,12 +48,15 @@ namespace server.CustomTypes
             try
             {
                 ApplicationUser host = await _context.ApplicationUser.FirstOrDefaultAsync(user => user.AccountName == partyHostName);
+                ApplicationUser newMember = await _context.ApplicationUser.FirstOrDefaultAsync(user => user.AccountName == accountName);
                 OnlineParty party = await _context.OnlineParty.FirstOrDefaultAsync(onlineParty => onlineParty.Host.AccountName == host.AccountName);
 
                 if (party == null)
                 {
                     return "false";
                 }
+
+                newMember.currentPartyId = party.Id;
 
                 bool foundSlot = false;
                 foreach (PropertyInfo propInfo in party.GetType().GetProperties())
@@ -114,12 +119,14 @@ namespace server.CustomTypes
             try
             {
 
+                ApplicationUser member = await _context.ApplicationUser.FirstOrDefaultAsync(user => memberToRemove == user.AccountName);
                 OnlineParty onlineParty = await _context.OnlineParty.FirstOrDefaultAsync(party => party.Host.AccountName == partyHostName);
 
                 if (onlineParty == null)
                 {
                     return false;
                 };
+
 
                 bool foundMember = false;
                 foreach (PropertyInfo propInfo in onlineParty.GetType().GetProperties())
@@ -130,13 +137,22 @@ namespace server.CustomTypes
                             if (propInfo.GetValue(onlineParty).ToString() == memberToRemove)
                             {
                                 foundMember = true;
+                                member.currentPartyId = null;
                                 propInfo.SetValue(onlineParty, null);
                             };
                         };
                     };
                 };
 
-                return foundMember ? true : false;
+
+                if (foundMember)
+                {
+                    await _context.SaveChangesAsync();
+                    return true;
+                } else {
+                    return false;
+                }
+
             }
             catch (Exception ex)
             {

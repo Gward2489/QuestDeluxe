@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
@@ -54,6 +55,31 @@ namespace server.Hubs
             };
 
             await Clients.OthersInGroup(partyName).SendAsync("RemovePlayerFromParty", playerData);
+        }
+
+        public override async Task OnDisconnectedAsync(Exception ex)
+        {
+
+            string disconnectedUser = "";
+            foreach (var item in Context.User.Claims)
+            {
+                if (item.Type == "Name")
+                {
+                    disconnectedUser = item.Value;
+                };
+            }
+
+            //get application user by matching disconnected user with ApplicationUser.accountName ...
+            // get party name by splitting partyName at "'" and then prefixing it with party:
+            // then call this with party name await Groups.RemoveFromGroupAsync(Context.ConnectionId, partyName) to remove from hub group
+
+            // grab party from db using currentPartyId on applicationUser.
+            // if disconnected is user is host destroy whole party and evoke method to send logic to members
+            // if disconnected user is not host, remove the user from their seat in the partObject
+
+
+            await base.OnDisconnectedAsync(ex);
+
         }
 
     }

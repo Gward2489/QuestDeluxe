@@ -6,5 +6,7 @@ namespace server.Models
     {
         public string AccountName { get; set; }
 
+        public int? currentPartyId { get; set; }
+
     }
 }
