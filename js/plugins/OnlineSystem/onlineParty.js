@@ -52,6 +52,13 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
                     console.log(party);
                 });
 
+                $onlineParty.partyConnection.on("PartyMemberDropped", function (disconnectedUser) {
+
+                    console.log(disconnectedUser + " has dropped");
+                    // logic to adjust party on client side here ... 
+
+                });
+
                 $onlineParty.partyConnection.invoke("AddToPartyAsHost", `party:${$gameNetwork.userAccountName}`, ping);
             } else {
                 $onlineParty.partyConnection.on("NewPlayerInParty", function (partyString) {
@@ -60,6 +67,23 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
                     $onlineParty.currentOnlineParty = party;
                     console.log(party);
                 });
+
+                $onlineParty.partyConnection.on("PartyMemberDropped", function (disconnectedUser) {
+
+                    // logic to adjust party on client side here ... 
+                    console.log(disconnectedUser + " has dropped");
+
+                });
+
+                $onlineParty.partyConnection.on("HostDropped", function (partyName) {
+
+                    // logic to disband party on host disconnect
+
+                    console.log(partyName + "'s host has dropped");
+
+                });
+
+
                 $onlineParty.partyConnection.invoke("AddToParty", $gameNetwork.userAccountName, partyHost);
             };
 

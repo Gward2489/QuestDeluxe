@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 using server.CustomTypes;
 using server.DBContext;
+using server.Models;
 
 namespace server.Hubs
 {
@@ -12,10 +16,12 @@ namespace server.Hubs
     {
 
         PartyHandler _partyHandler;
+        DatabaseContext _dbcontext;
 
         public OnlinePartyHub(DatabaseContext context)
         {
             _partyHandler = new PartyHandler(context);
+            _dbcontext = context;
         }
         
         public async Task AddToParty(string playerData, string hostName)
@@ -67,7 +73,52 @@ namespace server.Hubs
                 {
                     disconnectedUser = item.Value;
                 };
-            }
+            };
+
+
+            List<OnlineParty> parties = new List<OnlineParty>();
+
+
+            // loop through all parties and find parties that the disconnected user belongs to.
+            // remove the user from the parties.
+            // send message to other party members user has dropped so logic to adjust party accordingly can fire.
+            // if host destroy party
+
+
+
+            // need to convert to recursive function
+            _dbcontext.OnlineParty.ToList().ForEach(async p => {
+
+                Type type = p.GetType();
+                PropertyInfo[] propInfo =  type.GetProperties();
+
+                foreach (PropertyInfo info in propInfo)
+                {
+                    string propValue = info.GetValue(p).ToString();
+                    if (propValue.StartsWith(disconnectedUser)) {
+                        parties.Add(p);
+
+                        info.SetValue(p, null);
+
+                        _dbcontext.OnlineParty.Update(p);
+                        await _dbcontext.SaveChangesAsync();
+
+                        if (info.Name == "PartyName") {
+
+                            string partyName = "party:" + disconnectedUser;
+                            await Clients.OthersInGroup(partyName).SendAsync("HostDropped", partyName);
+                            _dbcontext.OnlineParty.Remove(p);
+                            await _dbcontext.SaveChangesAsync();
+                        } else {
+
+                            string partyName = "party:" + p.PartyName.Split("'")[0];
+                            await Clients.OthersInGroup(partyName).SendAsync("PartyMemberDropped", disconnectedUser); 
+
+                        };
+                    };
+                };
+
+            });
 
             //get application user by matching disconnected user with ApplicationUser.accountName ...
             // get party name by splitting partyName at "'" and then prefixing it with party:
