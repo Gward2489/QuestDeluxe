@@ -84,41 +84,93 @@ namespace server.Hubs
             // send message to other party members user has dropped so logic to adjust party accordingly can fire.
             // if host destroy party
 
+            List<DisconnectedPartyInfo> disconnectedPartiesInfo = new List<DisconnectedPartyInfo>();
 
+            _dbcontext.OnlineParty.ToList().ForEach(thisParty => {
 
-            // need to convert to recursive function
-            _dbcontext.OnlineParty.ToList().ForEach(async p => {
-
-                Type type = p.GetType();
+                Type type = thisParty.GetType();
                 PropertyInfo[] propInfo =  type.GetProperties();
-
-                foreach (PropertyInfo info in propInfo)
+                 foreach (PropertyInfo info in propInfo)
                 {
-                    string propValue = info.GetValue(p).ToString();
-                    if (propValue.StartsWith(disconnectedUser)) {
-                        parties.Add(p);
+                    if (info.PropertyType == typeof(string))
+                    {
+                        if (info.GetValue(thisParty) != null)
+                        {
 
-                        info.SetValue(p, null);
+                            string propValue = info.GetValue(thisParty).ToString();
+                            if (propValue.StartsWith(disconnectedUser)) 
+                            {
+                                DisconnectedPartyInfo disconnectInfo = new DisconnectedPartyInfo();
 
-                        _dbcontext.OnlineParty.Update(p);
-                        await _dbcontext.SaveChangesAsync();
+                                if (info.Name == "PartyName") {
 
-                        if (info.Name == "PartyName") {
+                                    disconnectInfo.ishost = true;
+                                    disconnectInfo.party = thisParty;
+                                    disconnectInfo.disconnectedUserProp = info;
+                                    disconnectedPartiesInfo.Add(disconnectInfo);
 
-                            string partyName = "party:" + disconnectedUser;
-                            await Clients.OthersInGroup(partyName).SendAsync("HostDropped", partyName);
-                            _dbcontext.OnlineParty.Remove(p);
-                            await _dbcontext.SaveChangesAsync();
-                        } else {
 
-                            string partyName = "party:" + p.PartyName.Split("'")[0];
-                            await Clients.OthersInGroup(partyName).SendAsync("PartyMemberDropped", disconnectedUser); 
+                                } else {
 
-                        };
-                    };
-                };
+
+                                    disconnectInfo.ishost = false;
+                                    disconnectInfo.party = thisParty;
+                                    disconnectInfo.disconnectedUserProp = info;
+                                    disconnectedPartiesInfo.Add(disconnectInfo);
+
+                                };
+
+
+                            };
+
+
+
+                        }
+
+
+                    }
+                };                
 
             });
+
+            int infosCount = disconnectedPartiesInfo.Count;
+            await ProcessPartyDisconnectAsync(disconnectedPartiesInfo, 0, infosCount, disconnectedUser);
+
+
+
+            // // need to convert to recursive function
+            // _dbcontext.OnlineParty.ToList().ForEach(async p => {
+
+            //     Type type = p.GetType();
+            //     PropertyInfo[] propInfo =  type.GetProperties();
+
+            //     foreach (PropertyInfo info in propInfo)
+            //     {
+            //         string propValue = info.GetValue(p).ToString();
+            //         if (propValue.StartsWith(disconnectedUser)) {
+            //             parties.Add(p);
+
+            //             info.SetValue(p, null);
+
+            //             _dbcontext.OnlineParty.Update(p);
+            //             await _dbcontext.SaveChangesAsync();
+
+            //             if (info.Name == "PartyName") {
+
+            //                 string partyName = "party:" + disconnectedUser;
+            //                 await Clients.OthersInGroup(partyName).SendAsync("HostDropped", partyName);
+            //                 _dbcontext.OnlineParty.Remove(p);
+            //                 await _dbcontext.SaveChangesAsync();
+            //             } else {
+
+            //                 string partyName = "party:" + p.PartyName.Split("'")[0];
+            //                 await Clients.OthersInGroup(partyName).SendAsync("PartyMemberDropped", disconnectedUser); 
+
+            //             };
+            //         };
+            //     };
+
+            // });
 
             //get application user by matching disconnected user with ApplicationUser.accountName ...
             // get party name by splitting partyName at "'" and then prefixing it with party:
@@ -133,5 +185,53 @@ namespace server.Hubs
 
         }
 
+        public async Task ProcessPartyDisconnectAsync(List<DisconnectedPartyInfo> partiesInfos, int index, int count, string disconnectedUser)
+        {
+
+            if (index < count)
+            {
+                DisconnectedPartyInfo party = partiesInfos[index];
+                if (party.ishost)
+                {
+
+                    _dbcontext.OnlineParty.Remove(party.party);
+                    await _dbcontext.SaveChangesAsync();
+                    string partyName = "party:" + disconnectedUser;
+                    await Clients.OthersInGroup(partyName).SendAsync("HostDropped", partyName);
+                    int newIndex = index + 1;
+                    await ProcessPartyDisconnectAsync(partiesInfos, newIndex, count, disconnectedUser);
+
+                }
+                else
+                {
+                    party.disconnectedUserProp.SetValue(party.party, null);
+                    _dbcontext.OnlineParty.Update(party.party);
+                    await _dbcontext.SaveChangesAsync();
+                    string partyName = "party:" + party.party.PartyName.Split("'")[0];
+                    await Clients.OthersInGroup(partyName).SendAsync("PartyMemberDropped", disconnectedUser); 
+                    int newIndex = index + 1;
+                    await ProcessPartyDisconnectAsync(partiesInfos, newIndex, count, disconnectedUser);
+                }
+            };
+
+        }
+    }
+
+    public class DisconnectedPartyInfo
+    {
+        public bool ishost { get; set; }
+
+        public PropertyInfo disconnectedUserProp { get; set; }
+
+        public OnlineParty party { get; set; }
+
+        DisconnectedPartyInfo(bool ishost, PropertyInfo disconnectedUserProp, OnlineParty party)
+        {
+            this.ishost = ishost;
+            this.disconnectedUserProp = disconnectedUserProp;
+            this.party = party;
+        }
+
+        public DisconnectedPartyInfo(){}
     }
 }
