@@ -117,7 +117,6 @@
             netEvents[userAccount].setPosition(data.x, data.y);
         }
 
-
         netEvents[userAccount]._characterName = data.characterName;
         netEvents[userAccount]._characterIndex = data.characterIndex;
 

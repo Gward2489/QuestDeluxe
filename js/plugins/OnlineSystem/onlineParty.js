@@ -15,6 +15,7 @@ Online_Party.prototype.initialize = function () {
     this.playerOptions = [];
     this.partyOptions = [];
     this.currentOnlineParty = {};
+    this.partyActors = {};
     this.currentPartyPortal = {};
 };
 
@@ -38,18 +39,25 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
                 let ping = "hello";
                 $onlineParty.partyConnection.on("NewPartyWithHost", function (partyString) {
                     $onlineParty.isHost = true;
-                    $gameMessage.add("Your Party Was Created !!");
-                    SceneManager._scene.addChild(new Online_Party_Window);
                     let party = $onlineParty.createNewOnlineParty(partyString);
                     $onlineParty.currentOnlineParty = party
-                    console.log(party);
+                    SceneManager._scene.addChild(new Online_Party_Window);
+                    $gameMessage.add("Your Party Was Created !!");
                 });
 
                 $onlineParty.partyConnection.on("NewPlayerInParty", function (partyString) {
                     $onlineParty.isHost = false;
                     let party = $onlineParty.createNewOnlineParty(partyString);
                     $onlineParty.currentOnlineParty = party;
-                    console.log(party);
+                    $onlineParty.sendPlayerData($gameNetwork.userAccountName);
+                });
+
+                $onlineParty.partyConnection.on("GameActorDataUpdate", function (actorString) {
+
+                    let newGameActorData = JsonEx.parse(actorString);
+                    $onlineParty.partyActors[newGameActorData.userAccountName] = newGameActorData;
+                    console.log($onlineParty.partyActors);
+
                 });
 
                 $onlineParty.partyConnection.on("PartyMemberDropped", function (disconnectedUser) {
@@ -60,12 +68,23 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
                 });
 
                 $onlineParty.partyConnection.invoke("AddToPartyAsHost", `party:${$gameNetwork.userAccountName}`, ping);
+
             } else {
+
+                $onlineParty.partyConnection.on("GameActorDataUpdate", function (actorString) {
+
+                    let newGameActorData = JsonEx.parse(actorString);
+                    $onlineParty.partyActors[newGameActorData.userAccountName] = newGameActorData;
+                    console.log($onlineParty.partyActors);
+
+                });
+
                 $onlineParty.partyConnection.on("NewPlayerInParty", function (partyString) {
                     $onlineParty.isHost = false;
                     let party = $onlineParty.createNewOnlineParty(partyString);
                     $onlineParty.currentOnlineParty = party;
-                    console.log(party);
+                    $onlineParty.sendPlayerData(partyHost);
+                    console.log($onlineParty.partyActors);
                 });
 
                 $onlineParty.partyConnection.on("PartyMemberDropped", function (disconnectedUser) {
@@ -98,6 +117,16 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
 Online_Party.prototype.createNewOnlineParty = function (partyString) {
     let partyObj = JSON.parse(partyString);
     return partyObj;
+};
+
+Online_Party.prototype.sendPlayerData = function (hostName) {
+
+    let rawActorData = $gameActors._data[1];
+    rawActorData.userAccountName = $gameNetwork.userAccountName;
+    const actorData =  JsonEx.stringify(rawActorData);
+
+    $onlineParty.partyConnection.invoke("SendGameActorData", hostName, actorData);
+
 };
 
 
@@ -162,6 +191,51 @@ Online_Party_Window.prototype.initialize = function() {
 
     let partyString = "";
 
-    this.drawTextEx(`${$gameNetwork.userAccountName}`, 2, 2)
+    // this.drawTextEx(`${$gameNetwork.userAccountName}`, 2, 2)
+    this.makePartyMembersList();
+}
+
+Online_Party_Window.prototype.makePartyMembersList = function () {
+    
+    let members = [];
+    let counter = 0;
+    for (let prop in $onlineParty.currentOnlineParty) {
+
+        if (prop.toLowerCase().startsWith("seat")) {
+
+            let displayObj = {
+                name: $onlineParty.currentOnlineParty[prop],
+                x: 2,
+                y: counter + 2
+                
+            };
+            if (displayObj.name !== null ) {
+                members.push(displayObj);
+                
+            }
+
+        } else if (prop.toLowerCase() == "partyname") {
+            
+            let displayObj = {
+                name: $onlineParty.currentOnlineParty[prop],
+                x: 2,
+                y: counter + 2
+                
+            };
+
+            if (displayObj.name !== null ) {
+                members.push(displayObj);
+
+            }
+
+        };
+
+        counter ++;
+    };
+
+    members.forEach(m => {
+
+        this.drawTextEx(`${m.name}`, m.x, m.y)
+    })
 }
 

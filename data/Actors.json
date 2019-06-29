@@ -1,4 +1,5 @@
 [
 null,
-{"id":1,"battlerName":"Actor1_1","characterIndex":0,"characterName":"Actor1","classId":1,"equips":[1,1,2,3,0],"faceIndex":0,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":"Harold","nickname":"","note":"","profile":""}
+{"id":1,"battlerName":"Actor1_1","characterIndex":0,"characterName":"Actor1","classId":1,"equips":[1,1,2,3,0],"faceIndex":0,"faceName":"Actor1","traits":[],"initialLevel":1,"maxLevel":99,"name":"Harold","nickname":"","note":"","profile":""},
+{"id":2,"battlerName":"OldMageBattler","characterIndex":0,"characterName":"OldMageWalk","classId":3,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"OldMageFace","traits":[],"initialLevel":1,"maxLevel":99,"name":"Dalf","nickname":"Dalf","note":"","profile":""}
 ]
