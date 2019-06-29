@@ -129,6 +129,48 @@ Online_Party.prototype.sendPlayerData = function (hostName) {
 
 };
 
+Online_Party.prototype.readyActorsCollectionForBattle = function () {
+    for (let prop in $onlineParty.partyActors) {
+
+        let actorExists = false;
+        let dataActorExists = false;
+
+        $gameActors._data.forEach((a) => {
+            if (a) {
+                if (a.userAccountName == prop) {
+                    actorExists = true;
+                };
+            };
+        });
+
+        $dataActors.forEach((d) => {
+            if (d) {
+                if (d.userAccountName == prop) {
+                    dataActorExists == true;
+                };
+            };
+        });
+
+
+
+        let newIndex = 0;
+
+        if (!actorExists) {
+            $gameActors._data.push($onlineParty.partyActors[prop]);
+        };
+
+        if (!dataActorExists) {
+           newIndex = $dataActors.push($onlineParty.partyActors[prop]);
+        };
+
+        if (newIndex > 0 ) {
+            $gameParty._actors.push((newIndex -1));
+        };
+
+        // add new index $gamePary._actors.push(new index)
+    };
+}
+
 
 Online_Party.prototype.makeOnlinePartyPortal = function () {
     // $onlineParty.populatePlayerOptions();
