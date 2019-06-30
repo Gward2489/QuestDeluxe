@@ -42,6 +42,11 @@ namespace server.Hubs
             await Clients.OthersInGroup($"party:{hostName}").SendAsync("GameActorDataUpdate", actorData);
         }
 
+        public async Task BroadcastOnlineEvent(string hostName, string eventName) 
+        {
+            await Clients.OthersInGroup($"party:{hostName}").SendAsync("OnlineEventBroadcast", eventName);
+        }
+
         public async Task AddToPartyAsHost(string partyName, string playerData)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, partyName);

@@ -67,6 +67,12 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
 
                 });
 
+                $onlineParty.partyConnection.on("OnlineEventBroadcast", function (eventName) {
+
+                    $onlineParty.activateOnlineEvent(eventName);
+
+                });
+
                 $onlineParty.partyConnection.invoke("AddToPartyAsHost", `party:${$gameNetwork.userAccountName}`, ping);
 
             } else {
@@ -76,6 +82,12 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
                     let newGameActorData = JsonEx.parse(actorString);
                     $onlineParty.partyActors[newGameActorData.userAccountName] = newGameActorData;
                     console.log($onlineParty.partyActors);
+
+                });
+
+                $onlineParty.partyConnection.on("OnlineEventBroadcast", function (eventName) {
+
+                    $onlineParty.activateOnlineEvent(eventName);
 
                 });
 
@@ -214,11 +226,38 @@ Online_Party.prototype.newPartyAsHost = function () {
     $onlineParty.makeNewPartyConnection(true);
 };
 
-Online_Party.prototype.newPlayerInParty = function (newMemberName) {
 
 
+Online_Party.prototype.activateOnlineEvent = function (eventName) {
 
+    let eventId = null;
+    
+    $dataMap.events.forEach((e) => {
+        if (e) {
+            if (e.name == eventName) {
+                eventId = e.id;
+            };
+        };
+    });
 
+    let event = null;
+    if (eventId) {
+        $gameMap._events.forEach((e) =>{
+            if (eventId == e._eventId) {
+                event = e;
+            };
+        });
+    };
+
+    if (event) {
+        event.start();
+    };
+    // else event not found on players current map
+
+}
+
+Online_Party.prototype.broadcastOnlineEvent = function (eventName) {
+    $onlineParty.partyConnection.invoke("BroadcastOnlineEvent", $onlineParty.currentOnlineParty.Host.AccountName, eventName);
 };
 
 function Online_Party_Window() {
