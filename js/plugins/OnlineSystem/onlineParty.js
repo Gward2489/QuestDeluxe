@@ -55,6 +55,7 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
                 $onlineParty.partyConnection.on("GameActorDataUpdate", function (actorString) {
 
                     let newGameActorData = JsonEx.parse(actorString);
+                    newGameActorData.isOnlinePlayer = true;
                     $onlineParty.partyActors[newGameActorData.userAccountName] = newGameActorData;
                     console.log($onlineParty.partyActors);
 
@@ -81,6 +82,7 @@ Online_Party.prototype.makeNewPartyConnection = function (asHost, partyHost) {
 
                     let newGameActorData = JsonEx.parse(actorString);
                     $onlineParty.partyActors[newGameActorData.userAccountName] = newGameActorData;
+                    newGameActorData.isOnlinePlayer = true;
                     console.log($onlineParty.partyActors);
 
                 });
@@ -257,7 +259,11 @@ Online_Party.prototype.activateOnlineEvent = function (eventName) {
 }
 
 Online_Party.prototype.broadcastOnlineEvent = function (eventName) {
-    $onlineParty.partyConnection.invoke("BroadcastOnlineEvent", $onlineParty.currentOnlineParty.Host.AccountName, eventName);
+
+    if ($onlineParty.currentOnlineParty.Host) {
+        $onlineParty.partyConnection.invoke("BroadcastOnlineEvent", $onlineParty.currentOnlineParty.Host.AccountName, eventName);
+    };
+
 };
 
 function Online_Party_Window() {
