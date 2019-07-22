@@ -20,6 +20,7 @@
     const onMapLoadALias = Scene_Map.prototype.onMapLoaded;
     Scene_Map.prototype.onMapLoaded = function () {
         onMapLoadALias.call(this);
+        $gamePlayer.refresh();
 
         if ($gameMap._mapId !== $gameNetwork.currentMapId) {
 
@@ -162,6 +163,43 @@
         }
     };
     
+    var NetPlayer_GmePlayer_refresh_alias = Game_Player.prototype.refresh;
+    Game_Player.prototype.refresh = function() {
+        NetPlayer_GmePlayer_refresh_alias.call(this);
+        if(this.namepop===undefined) 
+        {
+            this.namepop = "";
+            this.namepop_size = 212;
+            this.namepop_color = '#ffffff';
+            this.namepop_outlineColor = 'rgba(0, 0, 0, 0.5)';
+            this.namepop_outlineWidth = 4;
+            this.namepop_time = 0;
+            this.namepop_font = 'GameFont';
+            this.namepop_ital = false;
+            this.windowOpacity = 1;
+            this.namepop_ox = 0;
+            this.namepop_oy = 0;
+            this.namepop_width =  0;
+            this.namepop_height = 0;
+            this.textpop_flag = false; //Shut off switch
+
+            this.setTextOptions = function(textOption) {
+                var text = Nasty.Param.TextPop[textOption];
+                this.namepop_size = text.namepop_size;
+                this.namepop_color = text.namepop_color;
+                this.namepop_outlineColor = text.namepop_outlineColor;
+                this.namepop_outlineWidth = text.namepop_outlineWidth;
+                this.namepop_time = text.namepop_time;
+                this.namepop_font = text.namepop_font;
+                this.namepop_ital = text.namepop_ital;
+                this.namepop_ox = text.namepop_offsetx;
+                this.namepop_oy = text.namepop_offsety;
+                this.textpop_flag = true;
+             };
+        }    
+        this.namepop =$gameParty.leader()._name;
+        this.setTextOptions(1);
+      };
 
     Game_Player.prototype.seedNewPlayerEvent = function (newPlayerX, newPlayerY, playerAccountName) {
         let newEventId = $dataMap.events.length;
@@ -172,11 +210,11 @@
 
     
     //logic to add new player instance to networkMapEvents
-    Game_Map.prototype.addNetworkPlayer = function(x, y, playerAccountName) {
+    Game_Map.prototype.addNetworkPlayer = function(x, y, playerAccountName, charName) {
         let newPlayerEventId = Game_Player.prototype.seedNewPlayerEvent(x, y, playerAccountName);
         let newPlayerMapId = this._events.length;
 
-        this._events[newPlayerMapId] = new Game_NetworkPlayer(this._mapId, newPlayerEventId, x, y);
+        this._events[newPlayerMapId] = new Game_NetworkPlayer(this._mapId, newPlayerEventId, x, y, charName);
         this._events[newPlayerMapId]._accountUserName = playerAccountName;
         this._events[newPlayerMapId]._isNetworkPlayerEvent = true;
         SceneManager._scene._spriteset.createNetworkPlayer(newPlayerMapId, playerAccountName);
@@ -201,9 +239,16 @@
     Game_NetworkPlayer.prototype = Object.create(Game_Event.prototype);
     Game_NetworkPlayer.prototype.constructor = Game_NetworkPlayer;
     
-    Game_NetworkPlayer.prototype.initialize = function(mapId, eventId,x,y) {
+    Game_NetworkPlayer.prototype.initialize = function(mapId, eventId,x,y, charName) {
         Game_Event.prototype.initialize.call(this,mapId,eventId);
         this._isNetworkPlayer = true;
         this.setPosition(x,y);
+        if (this.namepop===undefined){
+          console.log("You need Nasty_Text_Pop_Events for names to show!");
+        }else{
+          this.namepop = charName;
+          this.textpop_flag = true;
+          this.setTextOptions(1);
+        }
     };
     

@@ -49,7 +49,7 @@ export {Game_Network};
                         data.x = 1,
                         data.y = 1
                     };
-                    let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName);
+                    let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName, data.charName);
                     $gameNetwork.networkMapEvents[data.accountUserName] = newNetworkPlayer;
                     $onlineParty.members.push(newNetworkPlayer);
 
@@ -69,7 +69,8 @@ export {Game_Network};
                     if ($gameNetwork.networkMapEvents[data.accountUserName]) {
                         Game_Player.prototype.UpdateNetworkPlayer(data);
                     } else {
-                        let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName);
+                        console.log(data.charName);
+                        let newNetworkPlayer = $gameMap.addNetworkPlayer(data.x, data.y, data.accountUserName, data.charName);
                         $gameNetwork.networkMapEvents[data.accountUserName] = newNetworkPlayer;
                         $onlineParty.members.push(newNetworkPlayer);
                         Game_Player.prototype.UpdateNetworkPlayer(data);
@@ -123,6 +124,7 @@ export {Game_Network};
 
         let playerData = {
             accountUserName: $gameNetwork.userAccountName,
+            charName: $gameParty.leader()._name,
             direction: $gamePlayer._direction,
             x: $gamePlayer._x,
             y: $gamePlayer._y,
